@@ -2,16 +2,16 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 
 public class Main extends Application {
+
+    private final int rows = 8;
+    private final int columns = 8;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -86,31 +86,44 @@ public class Main extends Application {
         BorderPane.setAlignment(topPane, Pos.TOP_CENTER);
 
         GridPane bottomPane = new GridPane();
-        Button bottomButton1 = new Button("I am bottom.");
-        bottomPane.getChildren().add(bottomButton1);
-        Button bottomButton2 = new Button("I am bottom again.");
-        bottomPane.getChildren().add(bottomButton2);
+
+
         borderPane.setBottom(bottomPane);
         bottomPane.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(bottomPane, Pos.BOTTOM_CENTER);
 
+
         GridPane centerPane = new GridPane();
 
+        boolean light;
+        int ascii = 65;
 
-        for (int x = 0; x < 8; x++) {
+
+        for (int x = 1; x <= 8; x++) {
             for (int y = 0; y < 8; y++) {
-                Button chessSpace = new Button(Integer.toString(x) + ", " + Integer.toString(y));
-                //chessSpace.setPrefSize(100, 100);
-                centerPane.add(chessSpace, x, y);
+                Button chessSpace = new Button(/*Integer.toString(x) + ", " + Integer.toString(y)*/);
                 chessSpace.getStyleClass().add("chess-space");
-                //if()
-                chessSpace.getStylesheets().add("chess-space-light");
+                chessSpace.setOnAction((ActionEvent ae) -> doSomething(ae));
+                light = ((x + y) % 2 == 0 );
+                if(light) {
+                    chessSpace.getStyleClass().add("chess-space-light");
+                }else{
+                    chessSpace.getStyleClass().add("chess-space-dark");
             }
+                centerPane.add(chessSpace, x, y);
+            }
+            //sets row labels
+            Label xchar = new Label(Character.toString ((char) (ascii++)));
+            centerPane.add(xchar,x,8);
+            //sets column labels
+            Label ynum = new Label((Integer.toString(x)));
+            centerPane.add(ynum,0,(columns-x));
         }
 
+
+
+
         borderPane.setCenter(centerPane);
-
-
 
 
 
@@ -123,6 +136,7 @@ public class Main extends Application {
     }
 
     private Object doSomething(ActionEvent ae) {
+        //chessSpace
         return null;
     }
 

@@ -1,11 +1,11 @@
 .chess-space {
 	-fx-min-height:  50px;
 	-fx-min-width:   50px;
-	-fx-pref-height: 100px;
-	-fx-pref-width:  100px;
+	-fx-pref-height: 85px;
+	-fx-pref-width:  85px;
 	/* prevent rounded buttons */
 	-fx-background-radius: 0em;
-	-fx-background-color: #FFCE9E;
+
 }
 
 .chess-space-light {
