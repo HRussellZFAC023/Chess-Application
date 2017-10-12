@@ -148,17 +148,12 @@ public class Main extends Application {
 
 
 
-
-
-
-
         stage.setScene(scene);
         stage.show();
         stage.setOnCloseRequest((WindowEvent we) -> exitPrompt(we));
 
 
     }
-
 
 
     private void exitPrompt(WindowEvent we) {
