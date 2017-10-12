@@ -1,11 +1,18 @@
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
+import java.util.Optional;
 
 
 public class Main extends Application {
@@ -15,8 +22,6 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-
-
 
 
         VBox root = new VBox();
@@ -50,6 +55,7 @@ public class Main extends Application {
         BorderPane borderPane = new BorderPane();
         borderPane.prefHeightProperty().bind(root.heightProperty());
         root.getChildren().add(borderPane);
+        borderPane.setPadding(new Insets(40, 40, 40, 40));
 
         stage.setTitle("Chess Application");
         Button myButton = new Button("Click me!");
@@ -119,11 +125,27 @@ public class Main extends Application {
             Label ynum = new Label((Integer.toString(x)));
             centerPane.add(ynum,0,(columns-x));
         }
-
-
-
-
         borderPane.setCenter(centerPane);
+
+        ObservableList<Moves> moves = FXCollections.observableArrayList(
+                new Moves("e4", "e5"),
+                new Moves("d4", "e5xd4")
+        );
+        TableView table = new TableView<>();
+        table.setPrefSize(150, 250);
+        table.setItems(moves);
+
+        TableColumn whiteMoves = new TableColumn<>("White");
+        whiteMoves.setCellValueFactory(new PropertyValueFactory<>("White"));
+        table.getColumns().add(whiteMoves);
+
+        TableColumn blackMoves = new TableColumn<>("Black");
+        blackMoves.setCellValueFactory(new PropertyValueFactory<>("Black"));
+        table.getColumns().add(blackMoves);
+
+
+        borderPane.setRight(table);
+
 
 
 
@@ -132,8 +154,26 @@ public class Main extends Application {
 
         stage.setScene(scene);
         stage.show();
+        stage.setOnCloseRequest((WindowEvent we) -> exitPrompt(we));
+
 
     }
+
+
+
+    private void exitPrompt(WindowEvent we) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation Dialog");
+        alert.setHeaderText("Are you sure you want to exit?\nMake sure you have saved your game.");
+
+        Optional result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            System.exit(0);
+        } else {
+            we.consume();
+        }
+    }
+
 
     private Object doSomething(ActionEvent ae) {
         //chessSpace
