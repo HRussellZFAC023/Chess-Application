@@ -9,11 +9,11 @@ public class Moves {
         this.black = new SimpleStringProperty(black);
     }
 
-    public String getWhitesMove() { return white.get(); }
-    public void setWhitesMove(String firstName) { this.white.set(firstName); }
+    public String getWhite() { return white.get(); }
+    public void setWhite(String white) { this.white.set(white); }
 
-    public String getBlacksMove() { return black.get(); }
-    public void setBlacksMove(String lastName) { this.black.set(lastName); }
+    public String getBlack() { return black.get(); }
+    public void setBlack(String white ) { this.black.set(white); }
 
-  
+
 }

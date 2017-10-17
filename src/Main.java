@@ -18,7 +18,7 @@ import java.util.Optional;
 
 public class Main extends Application {
 
-    private final int rows = 8;
+    private final int rows = 8;    // not used
     private final int columns = 8;
 
     @Override
@@ -29,6 +29,7 @@ public class Main extends Application {
         Scene scene = new Scene(root, 1024, 768);
         scene.getStylesheets().add("stylesheet.css");
 
+        stage.setTitle("Chess Application");
 
         MenuBar myMenu = new MenuBar();
 
@@ -39,6 +40,7 @@ public class Main extends Application {
         MenuItem gameItem4 = new MenuItem("Setup Position");
         MenuItem gameItem5 = new MenuItem("Quit");
         gameMenu.getItems().addAll(gameItem1, gameItem2, gameItem3, gameItem4, gameItem5);
+        gameItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
 
         Menu tournamentMenu = new Menu("Tournament");
         MenuItem tournamentItem1 = new MenuItem("Generate Tournament");
@@ -63,22 +65,9 @@ public class Main extends Application {
         root.getChildren().add(borderPane);
         borderPane.setPadding(new Insets(40));
 
-        stage.setTitle("Chess Application");
 
 
-
-
-
-       VBox rightPane = new VBox();
-        Button rightButton1 = new Button("I am right.");
-        rightPane.getChildren().add(rightButton1);
-        Button rightButton2 = new Button("I am right again.");
-        rightPane.getChildren().add(rightButton2);
-        borderPane.setRight(rightPane);
-        rightPane.setAlignment(Pos.CENTER);
-        BorderPane.setAlignment(rightPane, Pos.CENTER_RIGHT);
-
-        GridPane centerPane = new GridPane();
+       GridPane centerPane = new GridPane();
 
         boolean light;
         boolean selected = false;
@@ -89,7 +78,7 @@ public class Main extends Application {
             for (int y = 0; y < 8; y++) {
                 Button chessSpace = new Button(/*Integer.toString(x) + ", " + Integer.toString(y)*/);
                 chessSpace.getStyleClass().add("chess-space");
-                chessSpace.setOnAction((ActionEvent ae) -> doSomething(ae,selected));
+                chessSpace.setOnAction((ActionEvent ae) -> doSomething(ae));
                 light = ((x + y) % 2 == 0 );
                 if(light) {
                     chessSpace.getStyleClass().add("chess-space-light");
@@ -109,7 +98,7 @@ public class Main extends Application {
 
         ObservableList<Moves> moves = FXCollections.observableArrayList(
                 new Moves("e4", "e5"),
-                new Moves("d4", "e5xd4")
+                new Moves("Nf3", "d4")
         );
         TableView table = new TableView<>();
         table.setPrefSize(200, 200);
@@ -137,6 +126,15 @@ public class Main extends Application {
 
 
         borderPane.setRight(table);
+        HBox topPane = new HBox();
+        Button undoButton = new Button("Undo");
+        topPane.getChildren().add(undoButton);
+        Button redoButton = new Button("Redo");
+        topPane.getChildren().add(redoButton);
+        borderPane.setRight(topPane);
+        topPane.setAlignment(Pos.CENTER);
+        borderPane.setAlignment(topPane, Pos.CENTER_RIGHT);
+        borderPane.setRight(undoButton);
 
 
 
@@ -162,8 +160,12 @@ public class Main extends Application {
     }
 
 
-    private Object doSomething(ActionEvent ae, boolean selected) {
-        return(!selected);
+    private static void doSomething(ActionEvent ae) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("This feature has not yet been implemented");
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {
