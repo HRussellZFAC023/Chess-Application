@@ -21,16 +21,20 @@ public class Main extends Application {
     private final int rows = 8;    // not used
     private final int columns = 8;
 
+    public Space[][] spaces = new Space[8][8];
+    public Space activeSpace = null;
+
     @Override
     public void start(Stage stage) throws Exception {
-        stage.getIcons().add(new Image("chess-33-xxl.png"));
+
+        stage.getIcons().add(new Image("chess-33-xxl.png"));    //adds icon
 
         VBox root = new VBox();
-        Scene scene = new Scene(root, 1024, 768);
+        Scene scene = new Scene(root, 1024, 768);       //creates scene
         scene.getStylesheets().add("stylesheet.css");
+        stage.setTitle("Chess Application");        //setting the title
 
-        stage.setTitle("Chess Application");
-
+        /*Adding the main menu*/
         MenuBar myMenu = new MenuBar();
 
         Menu gameMenu = new Menu("Game");
@@ -73,35 +77,38 @@ public class Main extends Application {
         boolean selected = false;
         int ascii = 65;
 
-
+        /*drawing the chessboard*/
         for (int x = 1; x <= 8; x++) {
             for (int y = 0; y < 8; y++) {
-                Button chessSpace = new Button(/*Integer.toString(x) + ", " + Integer.toString(y)*/);
-                chessSpace.getStyleClass().add("chess-space");
-                chessSpace.setOnAction((ActionEvent ae) -> doSomething(ae));
+
                 light = ((x + y) % 2 == 0 );
-                if(light) {
-                    chessSpace.getStyleClass().add("chess-space-light");
-                }else{
-                    chessSpace.getStyleClass().add("chess-space-dark");
+                spaces[x-1][y] = new Space(light,x,y);
+                final int Xval = (x-1);
+                final int Yval = y;
+                spaces[x-1][(y)].setOnAction( e -> onSpaceClick(Xval, Yval) );
+                {
+
             }
-                centerPane.add(chessSpace, x, y);
+                centerPane.add(spaces[(x-1)][y], x, y);
             }
             //sets row labels
             Label xchar = new Label(Character.toString ((char) (ascii++)));
+            xchar.getStyleClass().add("label-fill");
             centerPane.add(xchar,x,8);
             //sets column labels
             Label ynum = new Label((Integer.toString(x)));
+            ynum.getStyleClass().add("label-fill");
             centerPane.add(ynum,0,(columns-x));
         }
+        centerPane.setAlignment(Pos.CENTER);
         borderPane.setCenter(centerPane);
 
         ObservableList<Moves> moves = FXCollections.observableArrayList(
                 new Moves("e4", "e5"),
-                new Moves("Nf3", "d4")
+                new Moves("♘Nf3", "d4")
         );
         TableView table = new TableView<>();
-        table.setPrefSize(200, 200);
+        //table.setPrefSize(200, 750);            //done in stylesheet
         table.setItems(moves);
 
 
@@ -115,28 +122,20 @@ public class Main extends Application {
         table.getColumns().add(blackMoves);
         blackMoves.setSortable(false);
 
-        whiteMoves.prefWidthProperty().bind(table.widthProperty().multiply(0.5));
-        blackMoves.prefWidthProperty().bind(table.widthProperty().multiply(0.5));
-
-        whiteMoves.setResizable(false);
-        blackMoves.setResizable(false);
+        table.getStyleClass().add("table-view");
+        table.setSelectionModel(null);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-
-
-
-        borderPane.setRight(table);
-        HBox topPane = new HBox();
+        VBox leftPane = new VBox();
+        HBox buttonPane = new HBox();
+        buttonPane.setAlignment(Pos.BASELINE_CENTER);
+        buttonPane.setPadding(new Insets(10));
+        buttonPane.setSpacing(10);
         Button undoButton = new Button("Undo");
-        topPane.getChildren().add(undoButton);
         Button redoButton = new Button("Redo");
-        topPane.getChildren().add(redoButton);
-        borderPane.setRight(topPane);
-        topPane.setAlignment(Pos.CENTER);
-        borderPane.setAlignment(topPane, Pos.CENTER_RIGHT);
-        borderPane.setRight(undoButton);
-
-
+        buttonPane.getChildren().addAll(undoButton, redoButton);
+        leftPane.getChildren().addAll(table,buttonPane);
+        borderPane.setRight(leftPane);
 
         stage.setScene(scene);
         stage.show();
@@ -166,6 +165,11 @@ public class Main extends Application {
         alert.setHeaderText(null);
         alert.setContentText("This feature has not yet been implemented");
         alert.showAndWait();
+    }
+
+    public void onSpaceClick(int x, int y){
+        System.out.println("the x value is" + x);
+        System.out.println("the y value is" + y);
     }
 
     public static void main(String[] args) {

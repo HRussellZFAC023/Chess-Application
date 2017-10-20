@@ -20,3 +20,28 @@
 	-fx-background-color: red;
 }
 
+.label-fill{
+    -fx-text-fill: whitesmoke;
+}
+
+.root{
+    -fx-background: slategray;
+    -fx-font-size: 12pt;
+    -fx-font-family: "Courier New";
+}
+
+
+
+.table-view{
+	-fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-font-style: italic;
+    -fx-pref-rows: 2;
+    -fx-pref-columns: 2;
+    -fx-pref-height: 575px;
+    -fx-pref-width: 200px;
+    /*removes blue glow on selection*/
+    -fx-background-color: transparent;
+
+}
+
