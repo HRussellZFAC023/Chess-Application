@@ -33,6 +33,9 @@ public class Main extends Application {
         scene.getStylesheets().add("stylesheet.css");
         stage.setTitle("Chess Application");        //setting the title
 
+        VBox.setVgrow(root, Priority.ALWAYS);
+
+
         /*Adding the main menu*/
         MenuBar myMenu = new MenuBar();
 
@@ -125,7 +128,7 @@ public class Main extends Application {
         table.setSelectionModel(null);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        VBox leftPane = new VBox();
+        VBox rightPane = new VBox();
         HBox buttonPane = new HBox();
         buttonPane.setAlignment(Pos.BASELINE_CENTER);
         buttonPane.setPadding(new Insets(10));
@@ -133,8 +136,12 @@ public class Main extends Application {
         Button undoButton = new Button("Undo");
         Button redoButton = new Button("Redo");
         buttonPane.getChildren().addAll(undoButton, redoButton);
-        leftPane.getChildren().addAll(table,buttonPane);
-        borderPane.setRight(leftPane);
+        rightPane.getChildren().addAll(table,buttonPane);
+        //rightPane.setAlignment(Pos.BASELINE_CENTER);
+        BorderPane.setAlignment(rightPane, Pos.CENTER_RIGHT);
+
+
+        borderPane.setRight(rightPane);
 
         stage.setScene(scene);
         stage.show();
