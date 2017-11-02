@@ -22,7 +22,6 @@ public class Main extends Application {
     private final int columns = 8;
 
     public Space[][] spaces = new Space[8][8];
-    public Space activeSpace = null;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -103,9 +102,9 @@ public class Main extends Application {
         centerPane.setAlignment(Pos.CENTER);
         borderPane.setCenter(centerPane);
 
-        ObservableList<Moves> moves = FXCollections.observableArrayList(
-                new Moves("e4", "e5"),
-                new Moves("♘Nf3", "d4")
+        ObservableList<Move> moves = FXCollections.observableArrayList(
+                new Move("e4", "e5"),
+                new Move("♘Nf3", "d4")
         );
         TableView table = new TableView<>();
         //table.setPrefSize(200, 750);            //done in stylesheet

@@ -1,10 +1,10 @@
 import javafx.beans.property.SimpleStringProperty;
 
-public class Moves {
+public class Move {
     private final SimpleStringProperty white;
     private final SimpleStringProperty black;
 
-    public Moves(String white, String black) {
+    public Move(String white, String black) {
         this.white = new SimpleStringProperty(white);
         this.black = new SimpleStringProperty(black);
     }
