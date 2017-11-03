@@ -37,7 +37,6 @@
     -fx-text-alignment: center;
     -fx-font-style: italic;
     -fx-pref-rows: 2;
-    -fx-pref-columns: 2;
     -fx-pref-height: 575px;
     -fx-pref-width: 200px;
     /*removes blue glow on selection*/

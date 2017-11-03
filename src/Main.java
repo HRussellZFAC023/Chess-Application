@@ -1,3 +1,4 @@
+import Model.MoveView;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,8 +34,6 @@ public class Main extends Application {
         scene.getStylesheets().add("stylesheet.css");
         stage.setTitle("Chess Application");        //setting the title
 
-        VBox.setVgrow(root, Priority.ALWAYS);
-
 
         /*Adding the main menu*/
         MenuBar myMenu = new MenuBar();
@@ -46,22 +45,38 @@ public class Main extends Application {
         MenuItem gameItem4 = new MenuItem("Setup Position");
         MenuItem gameItem5 = new MenuItem("Quit");
         gameMenu.getItems().addAll(gameItem1, gameItem2, gameItem3, gameItem4, gameItem5);
-        gameItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
 
-        Menu tournamentMenu = new Menu("Tournament");
-        MenuItem tournamentItem1 = new MenuItem("Generate Tournament");
-        MenuItem tournamentItem2 = new MenuItem("Load Tournament");
+         /*TODO Add functionality to menu clicks*/
+        gameItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
+        gameItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
+        gameItem3.setOnAction((ActionEvent ae) -> doSomething(ae));
+        gameItem4.setOnAction((ActionEvent ae) -> doSomething(ae));
+        gameItem5.setOnAction((ActionEvent ae) -> exitPrompt(null));
+
+        Menu tournamentMenu = new Menu("Tournaments");
+        MenuItem tournamentItem1 = new MenuItem("Generate Tournaments");
+        MenuItem tournamentItem2 = new MenuItem("Load Tournaments");
         tournamentMenu.getItems().addAll(tournamentItem1, tournamentItem2);
+
+        tournamentItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
+        tournamentItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
+
 
         Menu trainingMenu = new Menu("Training");
         MenuItem trainingItem1 = new MenuItem("New puzzle");
         MenuItem trainingItem2 = new MenuItem("Create puzzle");
         trainingMenu.getItems().addAll(trainingItem1, trainingItem2 );
 
+        trainingItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
+        trainingItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
+
         Menu aboutMenu = new Menu("About");
         MenuItem aboutItem1 = new MenuItem("Rules of chess");
         MenuItem aboutItem2 = new MenuItem("Credits");
         aboutMenu.getItems().addAll(aboutItem1, aboutItem2 );
+
+        aboutItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
+        aboutItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
 
         myMenu.getMenus().addAll(gameMenu, trainingMenu, aboutMenu);
         root.getChildren().add(myMenu);
@@ -105,13 +120,13 @@ public class Main extends Application {
         centerPane.setAlignment(Pos.CENTER);
         borderPane.setCenter(centerPane);
 
-        ObservableList<Move> moves = FXCollections.observableArrayList(
-                new Move("e4", "e5"),
-                new Move("♘Nf3", "d4")
+        ObservableList<MoveView> moveViews = FXCollections.observableArrayList(
+                new MoveView("e4", "e5"),
+                new MoveView("♘Nf3", "d4")
         );
         TableView table = new TableView<>();
         //table.setPrefSize(200, 750);            //done in stylesheet
-        table.setItems(moves);
+        table.setItems(moveViews);
 
 
         TableColumn whiteMoves = new TableColumn<>("White");
@@ -137,7 +152,7 @@ public class Main extends Application {
         Button redoButton = new Button("Redo");
         buttonPane.getChildren().addAll(undoButton, redoButton);
         rightPane.getChildren().addAll(table,buttonPane);
-        //rightPane.setAlignment(Pos.BASELINE_CENTER);
+        rightPane.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(rightPane, Pos.CENTER_RIGHT);
 
 
