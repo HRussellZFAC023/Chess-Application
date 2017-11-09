@@ -1,4 +1,7 @@
+import Model.DatabaseConnection;
 import Model.MoveView;
+import Model.Tournament.Enrollments;
+import Model.Tournament.EnrollmentsService;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,10 +17,16 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.io.Console;
+import java.util.ArrayList;
 import java.util.Optional;
 
 
 public class Main extends Application {
+
+    public static DatabaseConnection tournamentDatabase;
+    public static DatabaseConnection GameDatabase;
+
 
     private final int rows = 8;    // not used
     private final int columns = 8;
@@ -26,6 +35,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        tournamentDatabase = new DatabaseConnection("Tournament_Database.db");
+
 
         stage.getIcons().add(new Image("chess-33-xxl.png"));    //adds icon
 
@@ -163,6 +174,18 @@ public class Main extends Application {
         stage.setOnCloseRequest((WindowEvent we) -> exitPrompt(we));
 
 
+
+
+
+        ArrayList<Enrollments> testList = new ArrayList<>();
+
+        EnrollmentsService.selectAll(testList, tournamentDatabase);
+
+        for (Enrollments c: testList) {
+            System.out.println(c);
+        }
+
+
     }
 
 
@@ -191,6 +214,10 @@ public class Main extends Application {
     public void onSpaceClick(int x, int y){
         System.out.println("the x value is" + x);
         System.out.println("the y value is" + y);
+
+
+
+
     }
 
     public static void main(String[] args) {
