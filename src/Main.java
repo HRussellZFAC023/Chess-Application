@@ -1,7 +1,6 @@
 import Model.DatabaseConnection;
 import Model.MoveView;
-import Model.Tournament.Enrollments;
-import Model.Tournament.EnrollmentsService;
+import Model.Tournament.*;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -175,17 +174,29 @@ public class Main extends Application {
 
 
 
-
+//test code
 
         ArrayList<Enrollments> testList = new ArrayList<>();
+        ArrayList<Pairings> testList2 = new ArrayList<>();
+        ArrayList<Pairings> testList3 = new ArrayList<>();
 
         EnrollmentsService.selectAll(testList, tournamentDatabase);
+        PairingsService.selectAll(testList2, tournamentDatabase);
+        PairingsService.selectAll(testList2, tournamentDatabase);
+        PairingsService.selectAll(testList2, tournamentDatabase);
 
         for (Enrollments c: testList) {
-            System.out.println(c);
+           System.out.println(c);
         }
-
-
+        for (Pairings c: testList2){
+            System.out.print(c);
+        }
+        for (Players c: testList2){
+            System.out.print(c);
+        }
+        for (Tournaments c: testList2){
+            System.out.print(c);
+        }
     }
 
 
