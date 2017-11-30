@@ -178,24 +178,25 @@ public class Main extends Application {
 
         ArrayList<Enrollments> testList = new ArrayList<>();
         ArrayList<Pairings> testList2 = new ArrayList<>();
-        ArrayList<Pairings> testList3 = new ArrayList<>();
+        ArrayList<Players> testList3 = new ArrayList<>();
+        ArrayList<Tournaments> testList4 = new ArrayList<>();
 
         EnrollmentsService.selectAll(testList, tournamentDatabase);
         PairingsService.selectAll(testList2, tournamentDatabase);
-        PairingsService.selectAll(testList2, tournamentDatabase);
-        PairingsService.selectAll(testList2, tournamentDatabase);
+        PlayersService.selectAll(testList3, tournamentDatabase);
+        TournamentsService.selectAll(testList4, tournamentDatabase);
 
         for (Enrollments c: testList) {
            System.out.println(c);
         }
         for (Pairings c: testList2){
-            System.out.print(c);
+            System.out.println(c);
         }
-        for (Players c: testList2){
-            System.out.print(c);
+        for (Players c: testList3){
+            System.out.println(c);
         }
-        for (Tournaments c: testList2){
-            System.out.print(c);
+        for (Tournaments c: testList4){
+            System.out.println(c);
         }
     }
 

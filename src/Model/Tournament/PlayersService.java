@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class PlayersService {
-    public static void selectAll(List<Pairings> targetList, DatabaseConnection database) {
-        PreparedStatement statement = database.newStatement("SELECT Student_, Player_1_number, Player_2_number, Round_ID, Tournament_ID FROM Pairing");
+    public static void selectAll(List<Players> targetList, DatabaseConnection database) {
+        PreparedStatement statement = database.newStatement("SELECT Student_number, First_name, Last_name, First_year FROM Player");
 
         try {
             if (statement != null) {
@@ -18,7 +18,7 @@ public class PlayersService {
 
                 if (results != null) {
                     while (results.next()) {
-                        targetList.add(new Pairings(results.getInt("Round_no"), results.getInt("Player_1_number"), results.getInt("Player_2_number"), results.getInt("Round_ID"), results.getInt("Tournament_ID") ));
+                        targetList.add(new Players(results.getInt("Student_number"), results.getString("First_name"), results.getString("Last_name"), results.getBoolean("First_year") ));
                     }
                 }
             }
