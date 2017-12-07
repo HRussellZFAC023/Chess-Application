@@ -9,6 +9,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
@@ -16,11 +21,15 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.io.Console;
+import java.awt.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Optional;
-
-
+/*
+TODO load a PGN file
+TODO write PGN contents to database
+TODO output the game to GUI
+*/
 public class Main extends Application {
 
     public static DatabaseConnection tournamentDatabase;
@@ -49,19 +58,27 @@ public class Main extends Application {
         MenuBar myMenu = new MenuBar();
 
         Menu gameMenu = new Menu("Game");
-        MenuItem gameItem1 = new MenuItem("New Game");
-        MenuItem gameItem2 = new MenuItem("Save");
-        MenuItem gameItem3 = new MenuItem("Open");
-        MenuItem gameItem4 = new MenuItem("Setup Position");
-        MenuItem gameItem5 = new MenuItem("Quit");
-        gameMenu.getItems().addAll(gameItem1, gameItem2, gameItem3, gameItem4, gameItem5);
+        MenuItem newGameButton = new MenuItem("New Game");
+        MenuItem saveButton = new MenuItem("Save");
+        MenuItem openButton = new MenuItem("Open"); //when this is pressed offer user to load a pgn or load from database
+        MenuItem setupButton = new MenuItem("Setup Position");
+        MenuItem quitButton = new MenuItem("Quit");
+        gameMenu.getItems().addAll(newGameButton, saveButton, openButton, setupButton, quitButton);
 
          /*TODO Add functionality to menu clicks*/
-        gameItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
-        gameItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
-        gameItem3.setOnAction((ActionEvent ae) -> doSomething(ae));
-        gameItem4.setOnAction((ActionEvent ae) -> doSomething(ae));
-        gameItem5.setOnAction((ActionEvent ae) -> exitPrompt(null));
+        newGameButton.setOnAction((ActionEvent ae) -> doSomething(ae));
+        saveButton.setOnAction((ActionEvent ae) -> saveSomething(ae));
+
+        openButton.setOnAction((ActionEvent ae) -> {
+            try {
+                openSomething(ae);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        setupButton.setOnAction((ActionEvent ae) -> doSomething(ae));
+        quitButton.setOnAction((ActionEvent ae) -> exitPrompt(null));
 
         Menu tournamentMenu = new Menu("Tournaments");
         MenuItem tournamentItem1 = new MenuItem("Generate Tournaments");
@@ -75,7 +92,7 @@ public class Main extends Application {
         Menu trainingMenu = new Menu("Training");
         MenuItem trainingItem1 = new MenuItem("New puzzle");
         MenuItem trainingItem2 = new MenuItem("Create puzzle");
-        trainingMenu.getItems().addAll(trainingItem1, trainingItem2 );
+        trainingMenu.getItems().addAll(trainingItem1, trainingItem2);
 
         trainingItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
         trainingItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
@@ -83,7 +100,7 @@ public class Main extends Application {
         Menu aboutMenu = new Menu("About");
         MenuItem aboutItem1 = new MenuItem("Rules of chess");
         MenuItem aboutItem2 = new MenuItem("Credits");
-        aboutMenu.getItems().addAll(aboutItem1, aboutItem2 );
+        aboutMenu.getItems().addAll(aboutItem1, aboutItem2);
 
         aboutItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
         aboutItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
@@ -97,8 +114,7 @@ public class Main extends Application {
         borderPane.setPadding(new Insets(40));
 
 
-
-       GridPane centerPane = new GridPane();
+        GridPane centerPane = new GridPane();
 
         boolean light;
         boolean selected = false;
@@ -108,24 +124,24 @@ public class Main extends Application {
         for (int x = 1; x <= 8; x++) {
             for (int y = 0; y < 8; y++) {
 
-                light = ((x + y) % 2 == 0 );
-                spaces[x-1][y] = new Space(light,x,y);
-                final int Xval = (x-1);
+                light = ((x + y) % 2 == 0);
+                spaces[x - 1][y] = new Space(light, x, y);
+                final int Xval = (x - 1);
                 final int Yval = y;
-                spaces[x-1][(y)].setOnAction( e -> onSpaceClick(Xval, Yval) );
+                spaces[x - 1][(y)].setOnAction(e -> onSpaceClick(Xval, Yval));
                 {
 
-            }
-                centerPane.add(spaces[(x-1)][y], x, y);
+                }
+                centerPane.add(spaces[(x - 1)][y], x, y);
             }
             //sets row labels
-            Label xchar = new Label(Character.toString ((char) (ascii++)));
+            Label xchar = new Label(Character.toString((char) (ascii++)));
             xchar.getStyleClass().add("label-fill");
-            centerPane.add(xchar,x,8);
+            centerPane.add(xchar, x, 8);
             //sets column labels
             Label ynum = new Label((Integer.toString(x)));
             ynum.getStyleClass().add("label-fill");
-            centerPane.add(ynum,0,(columns-x));
+            centerPane.add(ynum, 0, (columns - x));
         }
         centerPane.setAlignment(Pos.CENTER);
         borderPane.setCenter(centerPane);
@@ -161,7 +177,7 @@ public class Main extends Application {
         Button undoButton = new Button("Undo");
         Button redoButton = new Button("Redo");
         buttonPane.getChildren().addAll(undoButton, redoButton);
-        rightPane.getChildren().addAll(table,buttonPane);
+        rightPane.getChildren().addAll(table, buttonPane);
         rightPane.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(rightPane, Pos.CENTER_RIGHT);
 
@@ -171,7 +187,6 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
         stage.setOnCloseRequest((WindowEvent we) -> exitPrompt(we));
-
 
 
 //test code
@@ -186,20 +201,84 @@ public class Main extends Application {
         PlayersService.selectAll(testList3, tournamentDatabase);
         TournamentsService.selectAll(testList4, tournamentDatabase);
 
-        for (Enrollments c: testList) {
-           System.out.println(c);
-        }
-        for (Pairings c: testList2){
+        for (Enrollments c : testList) {
             System.out.println(c);
         }
-        for (Players c: testList3){
+        for (Pairings c : testList2) {
             System.out.println(c);
         }
-        for (Tournaments c: testList4){
+        for (Players c : testList3) {
+            System.out.println(c);
+        }
+        for (Tournaments c : testList4) {
             System.out.println(c);
         }
     }
 
+    private static void saveSomething(ActionEvent ae) {
+
+    }
+
+    private static void openSomething(ActionEvent ae) throws IOException {
+        boolean local = false;
+        String fileLocation;
+        ArrayList<String> fileContents = new ArrayList<>();
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Would you like to open a game from database",
+                ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Confirmation Dialog");
+
+        Optional result = alert.showAndWait();
+        if (result.get() == ButtonType.NO) local = true;
+
+        if (!local) {
+
+            FileDialog dialog = new FileDialog((Frame)null, "Select File to Open");
+            dialog.setMode(FileDialog.LOAD);
+            dialog.setVisible(true);
+            fileLocation = dialog.getFile();
+            System.out.println(fileLocation + " chosen.");
+
+            BufferedReader br = new BufferedReader(new FileReader(fileLocation));
+            try {
+                String line = br.readLine();
+                while (line != null) {
+                    fileContents.add(line);
+                    line = br.readLine();
+                }
+            } finally {
+                br.close();
+            }
+
+            //System.out.println(fileContents);
+            Alert alert2 = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Would you like to save the game locally?",
+                    ButtonType.YES, ButtonType.NO);
+            alert2.setTitle("Confirmation Dialog");
+
+            Optional result2 = alert2.showAndWait();
+
+            if (result2.get() == ButtonType.YES) {
+
+                boolean foundStart = false;
+
+                for (String line : fileContents) {
+                    if (line.trim().equals("")) {
+                        foundStart = true;
+                    } else if (foundStart) {
+                        System.out.println(line);
+                        saveSomething(null);
+                    }
+
+                }
+            }
+
+        }else {/*TODO get user to select game from database */}
+
+    }
+
+    //write game opened to database
 
     private void exitPrompt(WindowEvent we) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

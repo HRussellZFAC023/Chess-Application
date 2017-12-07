@@ -18,7 +18,7 @@ public class TournamentsService {
 
                 if (results != null) {
                     while (results.next()) {
-                        targetList.add(new Tournaments(results.getInt("Tournament_ID"), results.getDate("Date"), results.getString("Location")));
+                        targetList.add(new Tournaments(results.getInt("Tournament_ID"), results.getString("Date"), results.getString("Location")));
                     }
                 }
             }
