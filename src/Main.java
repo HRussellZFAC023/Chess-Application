@@ -1,4 +1,5 @@
 import Model.DatabaseConnection;
+import Model.Game.*;
 import Model.MoveView;
 import Model.Tournament.*;
 import javafx.application.Application;
@@ -33,7 +34,7 @@ TODO output the game to GUI
 public class Main extends Application {
 
     public static DatabaseConnection tournamentDatabase;
-    public static DatabaseConnection GameDatabase;
+    public static DatabaseConnection gameDatabase;
 
 
     private final int rows = 8;    // not used
@@ -44,7 +45,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         tournamentDatabase = new DatabaseConnection("Tournament_Database.db");
-
+        gameDatabase = new DatabaseConnection("Moves_Database.db");
 
         stage.getIcons().add(new Image("chess-33-xxl.png"));    //adds icon
 
@@ -195,11 +196,15 @@ public class Main extends Application {
         ArrayList<Pairings> testList2 = new ArrayList<>();
         ArrayList<Players> testList3 = new ArrayList<>();
         ArrayList<Tournaments> testList4 = new ArrayList<>();
+        ArrayList<Games> testList5 = new ArrayList<>();
+
+
 
         EnrollmentsService.selectAll(testList, tournamentDatabase);
         PairingsService.selectAll(testList2, tournamentDatabase);
         PlayersService.selectAll(testList3, tournamentDatabase);
         TournamentsService.selectAll(testList4, tournamentDatabase);
+        GamesService.selectAll(testList5, gameDatabase);
 
         for (Enrollments c : testList) {
             System.out.println(c);
@@ -213,11 +218,19 @@ public class Main extends Application {
         for (Tournaments c : testList4) {
             System.out.println(c);
         }
+        for (Games c : testList5){
+            System.out.println(c);
+        }
+
+
+        Games game = new Games( 0,"28/11/99");
+        GamesService.save(game, gameDatabase);
     }
 
     private static void saveSomething(ActionEvent ae) {
 
     }
+
 
     private static void openSomething(ActionEvent ae) throws IOException {
         boolean local = false;

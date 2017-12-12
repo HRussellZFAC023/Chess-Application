@@ -1,16 +1,60 @@
 package Model.Game;
 
 import Model.DatabaseConnection;
+import Model.Tournament.Enrollments;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-class GamesService {
+public class GamesService {
 
-    public static void selectAll(List<Games> destination, DatabaseConnection database) { }
+    public static void selectAll(List<Games> targetList, DatabaseConnection database) {
+        PreparedStatement statement = database.newStatement("SELECT game_ID, date_Played FROM Game ORDER BY game_ID");
+
+        try {
+            if (statement != null) {
+
+                ResultSet results = database.executeQuery(statement);
+
+                if (results != null) {
+                    while (results.next()) {
+                        targetList.add(new Games(results.getInt("game_ID"), results.getString("date_Played")));
+                    }
+                }
+            }
+        } catch (SQLException resultsException) {
+            System.out.println("Database select all error: " + resultsException.getMessage());
+        }
+
+    }
     public static Games selectById(int id, DatabaseConnection database) {
         return null;
     }
-    public static void save(Games console, DatabaseConnection database) { }	// insert & update
+    public static void save(Games itemToSave, DatabaseConnection database) {
+
+        Games existingItem = null;
+        if (itemToSave.getGameId() != 0) existingItem = selectById(itemToSave.getGameId(), database);
+
+        try {
+            if (existingItem == null) {
+                PreparedStatement statement = database.newStatement("INSERT INTO Game (date_Played) VALUES (?)");
+                statement.setString(1, itemToSave.getGameDate());
+                database.executeUpdate(statement);
+            }
+            else {
+                PreparedStatement statement = database.newStatement("UPDATE Game SET name = ? WHERE id = ?");
+                statement.setString(1, itemToSave.getGameDate());
+                statement.setInt(2, itemToSave.getGameId());
+                database.executeUpdate(statement);
+            }
+        } catch (SQLException resultsException) {
+            System.out.println("Database saving error: " + resultsException.getMessage());
+        }
+
+
+    }	// insert & update
     public static void deleteById(int id, DatabaseConnection database) { }
 
 }
