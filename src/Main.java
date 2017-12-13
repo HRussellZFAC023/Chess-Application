@@ -3,6 +3,7 @@ import Model.Game.*;
 import Model.MoveView;
 import Model.Tournament.*;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -33,19 +34,13 @@ TODO output the game to GUI
 */
 public class Main extends Application {
 
-    public static DatabaseConnection tournamentDatabase;
-    public static DatabaseConnection gameDatabase;
-
-
-    private final int rows = 8;    // not used
-    private final int columns = 8;
-
-    public Space[][] spaces = new Space[8][8];
+    private static ButtonType option1;
+    private Space[][] spaces = new Space[8][8];
 
     @Override
     public void start(Stage stage) throws Exception {
-        tournamentDatabase = new DatabaseConnection("Tournament_Database.db");
-        gameDatabase = new DatabaseConnection("Moves_Database.db");
+        DatabaseConnection tournamentDatabase = new DatabaseConnection("Tournament_Database.db");
+        DatabaseConnection gameDatabase = new DatabaseConnection("Moves_Database.db");
 
         stage.getIcons().add(new Image("chess-33-xxl.png"));    //adds icon
 
@@ -67,8 +62,8 @@ public class Main extends Application {
         gameMenu.getItems().addAll(newGameButton, saveButton, openButton, setupButton, quitButton);
 
          /*TODO Add functionality to menu clicks*/
-        newGameButton.setOnAction((ActionEvent ae) -> doSomething(ae));
-        saveButton.setOnAction((ActionEvent ae) -> saveSomething(ae));
+        newGameButton.setOnAction(Main::doSomething);
+        saveButton.setOnAction(Main::saveSomething);
 
         openButton.setOnAction((ActionEvent ae) -> {
             try {
@@ -78,7 +73,7 @@ public class Main extends Application {
             }
         });
 
-        setupButton.setOnAction((ActionEvent ae) -> doSomething(ae));
+        setupButton.setOnAction(Main::doSomething);
         quitButton.setOnAction((ActionEvent ae) -> exitPrompt(null));
 
         Menu tournamentMenu = new Menu("Tournaments");
@@ -86,8 +81,8 @@ public class Main extends Application {
         MenuItem tournamentItem2 = new MenuItem("Load Tournaments");
         tournamentMenu.getItems().addAll(tournamentItem1, tournamentItem2);
 
-        tournamentItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
-        tournamentItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
+        tournamentItem1.setOnAction(Main::doSomething);
+        tournamentItem2.setOnAction(Main::doSomething);
 
 
         Menu trainingMenu = new Menu("Training");
@@ -95,16 +90,16 @@ public class Main extends Application {
         MenuItem trainingItem2 = new MenuItem("Create puzzle");
         trainingMenu.getItems().addAll(trainingItem1, trainingItem2);
 
-        trainingItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
-        trainingItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
+        trainingItem1.setOnAction(Main::doSomething);
+        trainingItem2.setOnAction(Main::doSomething);
 
         Menu aboutMenu = new Menu("About");
         MenuItem aboutItem1 = new MenuItem("Rules of chess");
         MenuItem aboutItem2 = new MenuItem("Credits");
         aboutMenu.getItems().addAll(aboutItem1, aboutItem2);
 
-        aboutItem1.setOnAction((ActionEvent ae) -> doSomething(ae));
-        aboutItem2.setOnAction((ActionEvent ae) -> doSomething(ae));
+        aboutItem1.setOnAction(Main::doSomething);
+        aboutItem2.setOnAction(Main::doSomething);
 
         myMenu.getMenus().addAll(gameMenu, trainingMenu, aboutMenu);
         root.getChildren().add(myMenu);
@@ -142,6 +137,7 @@ public class Main extends Application {
             //sets column labels
             Label ynum = new Label((Integer.toString(x)));
             ynum.getStyleClass().add("label-fill");
+            int columns = 8;
             centerPane.add(ynum, 0, (columns - x));
         }
         centerPane.setAlignment(Pos.CENTER);
@@ -187,7 +183,7 @@ public class Main extends Application {
 
         stage.setScene(scene);
         stage.show();
-        stage.setOnCloseRequest((WindowEvent we) -> exitPrompt(we));
+        stage.setOnCloseRequest(this::exitPrompt);
 
 
 //test code
@@ -221,10 +217,9 @@ public class Main extends Application {
         for (Games c : testList5){
             System.out.println(c);
         }
-
-
-        Games game = new Games( 0,"28/11/99");
-        GamesService.save(game, gameDatabase);
+        //how to save temp
+       // Games game = new Games( 0,"28/11/99");
+       // GamesService.save(game, gameDatabase);
     }
 
     private static void saveSomething(ActionEvent ae) {
@@ -233,17 +228,15 @@ public class Main extends Application {
 
 
     private static void openSomething(ActionEvent ae) throws IOException {
-        boolean local = false;
+        boolean local = true;
         String fileLocation;
         ArrayList<String> fileContents = new ArrayList<>();
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-                "Would you like to open a game from database",
-                ButtonType.YES, ButtonType.NO);
-        alert.setTitle("Confirmation Dialog");
 
-        Optional result = alert.showAndWait();
-        if (result.get() == ButtonType.NO) local = true;
+        Optional result = dialogueBox("Would you like to open a game from a database or a text file",
+                "Local Database","PGN Text File");
+
+        if (result.isPresent() && result.get() != option1) local = false;
 
         if (!local) {
 
@@ -253,33 +246,25 @@ public class Main extends Application {
             fileLocation = dialog.getFile();
             System.out.println(fileLocation + " chosen.");
 
-            BufferedReader br = new BufferedReader(new FileReader(fileLocation));
-            try {
+            try (BufferedReader br = new BufferedReader(new FileReader(fileLocation))) {
                 String line = br.readLine();
                 while (line != null) {
                     fileContents.add(line);
                     line = br.readLine();
                 }
-            } finally {
-                br.close();
             }
 
-            //System.out.println(fileContents);
-            Alert alert2 = new Alert(Alert.AlertType.CONFIRMATION,
-                    "Would you like to save the game locally?",
-                    ButtonType.YES, ButtonType.NO);
-            alert2.setTitle("Confirmation Dialog");
+            Optional result2 = dialogueBox("Would you like to save the file to the database?" ,
+                    "yes","no");
 
-            Optional result2 = alert2.showAndWait();
-
-            if (result2.get() == ButtonType.YES) {
+            if (result2.isPresent() && result2.get() == option1) {
 
                 boolean foundStart = false;
 
                 for (String line : fileContents) {
-                    if (line.trim().equals("")) {
+                    if(line.trim().equals(""))
                         foundStart = true;
-                    } else if (foundStart) {
+                    else if (foundStart) {
                         System.out.println(line);
                         saveSomething(null);
                     }
@@ -291,19 +276,30 @@ public class Main extends Application {
 
     }
 
+    private static Optional dialogueBox (String displayText, String button1, String button2){
+
+        option1 = new ButtonType(button1, ButtonBar.ButtonData.YES);
+        ButtonType option2 = new ButtonType(button2, ButtonBar.ButtonData.NO);
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, displayText, option1, option2);
+
+        return alert.showAndWait();
+    }
+
+
+
+
+
     //write game opened to database
 
     private void exitPrompt(WindowEvent we) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation Dialog");
-        alert.setHeaderText("Are you sure you want to exit?\nMake sure you have saved your game.");
+         Optional result = dialogueBox(
+                "Are you sure you want to exit?\nMake sure you have saved your game.",
+        "Yes","No"
+        );
 
-        Optional result = alert.showAndWait();
-        if (result.get() == ButtonType.OK){
-            System.exit(0);
-        } else {
-            we.consume();
-        }
+        if (result.isPresent() && result.get() == option1) System.exit(0);
+        we.consume();
     }
 
 
@@ -318,9 +314,6 @@ public class Main extends Application {
     public void onSpaceClick(int x, int y){
         System.out.println("the x value is" + x);
         System.out.println("the y value is" + y);
-
-
-
 
     }
 
