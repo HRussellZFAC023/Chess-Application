@@ -3,7 +3,6 @@ import Model.Game.*;
 import Model.MoveView;
 import Model.Tournament.*;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -22,13 +21,13 @@ import javafx.scene.layout.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Optional;
+
+
 /*
-TODO load a PGN file
 TODO write PGN contents to database
 TODO output the game to GUI
 */
@@ -36,6 +35,7 @@ public class Main extends Application {
 
     private static ButtonType option1;
     private Space[][] spaces = new Space[8][8];
+    private int moveId;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -218,8 +218,8 @@ public class Main extends Application {
             System.out.println(c);
         }
         //how to save temp
-       // Games game = new Games( 0,"28/11/99");
-       // GamesService.save(game, gameDatabase);
+       Games game = new Games( 0,"28/11/99", "hello", "world");
+       GamesService.save(game, gameDatabase);
     }
 
     private static void saveSomething(ActionEvent ae) {
@@ -233,10 +233,10 @@ public class Main extends Application {
         ArrayList<String> fileContents = new ArrayList<>();
 
 
-        Optional result = dialogueBox("Would you like to open a game from a database or a text file",
-                "Local Database","PGN Text File");
+        Optional msgResult = dialogueBox("Would you like to open a game from a database or a PGN file",
+                "Local Database","PGN File");
 
-        if (result.isPresent() && result.get() != option1) local = false;
+        if (msgResult.isPresent() && msgResult.get() != option1) local = false;
 
         if (!local) {
 
@@ -254,30 +254,64 @@ public class Main extends Application {
                 }
             }
 
-            Optional result2 = dialogueBox("Would you like to save the file to the database?" ,
+            System.out.println(fileContents);
+            Optional msgResult2 = dialogueBox("Would you like to save the file to the database?" ,
                     "yes","no");
 
-            if (result2.isPresent() && result2.get() == option1) {
-
+            if (msgResult2.isPresent() && msgResult2.get() == option1) {
                 boolean foundStart = false;
+                String date = "";
+                String w = "";
+                String b = "";
+                String gameResult = "";
 
                 for (String line : fileContents) {
-                    if(line.trim().equals(""))
+                    if(line.contains("Date"))
+                        date = extract(line, foundStart);
+                    else if(line.contains("White")){
+                        w = extract(line, foundStart);
+                    }
+                    else if(line.contains("Black")){
+                        b = extract(line, foundStart);
+                    }
+                    else if(line.contains("Result")){
+                        gameResult = extract(line, foundStart);
+                    }
+                    else if (line.trim().equals(""))
                         foundStart = true;
                     else if (foundStart) {
+
+
+                        //Moves move = new Moves();
                         System.out.println(line);
                         saveSomething(null);
                     }
 
                 }
+                System.out.println(date);
+                System.out.println(w);
+                System.out.println(b);
+                System.out.println(gameResult);
+
+
             }
 
         }else {/*TODO get user to select game from database */}
 
     }
+    private static String extract(String line, boolean foundStart) {
+        StringBuilder sb = new StringBuilder();
+        for (char c: line.toCharArray()) {
+            if (c == '"') foundStart = !foundStart;
+            if (foundStart && c != '"')
+                sb.append(c);
+        }
+        return String.valueOf(sb);
+    }
+
+
 
     private static Optional dialogueBox (String displayText, String button1, String button2){
-
         option1 = new ButtonType(button1, ButtonBar.ButtonData.YES);
         ButtonType option2 = new ButtonType(button2, ButtonBar.ButtonData.NO);
 
@@ -286,19 +320,15 @@ public class Main extends Application {
         return alert.showAndWait();
     }
 
-
-
-
-
     //write game opened to database
 
     private void exitPrompt(WindowEvent we) {
-         Optional result = dialogueBox(
+         Optional msgResult = dialogueBox(
                 "Are you sure you want to exit?\nMake sure you have saved your game.",
         "Yes","No"
         );
 
-        if (result.isPresent() && result.get() == option1) System.exit(0);
+        if (msgResult.isPresent() && msgResult.get() == option1) System.exit(0);
         we.consume();
     }
 
@@ -306,12 +336,11 @@ public class Main extends Application {
     private static void doSomething(ActionEvent ae) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information Dialog");
-        alert.setHeaderText(null);
         alert.setContentText("This feature has not yet been implemented");
         alert.showAndWait();
     }
 
-    public void onSpaceClick(int x, int y){
+    private void onSpaceClick(int x, int y){
         System.out.println("the x value is" + x);
         System.out.println("the y value is" + y);
 
@@ -319,5 +348,6 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+
     }
 }
