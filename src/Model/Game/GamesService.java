@@ -45,7 +45,7 @@ public class GamesService {
                 database.executeUpdate(statement);
             }
             else {
-                PreparedStatement statement = database.newStatement("UPDATE Game SET date_Played = ?, white_player = ?, black_player = ? WHERE id = ?");
+                PreparedStatement statement = database.newStatement("UPDATE Game SET date_Played = ?, white_player = ?, black_player = ? WHERE game_ID = ?");
                 statement.setString(1, itemToSave.getBlack());
                 statement.setString(2, itemToSave.getWhite());
                 statement.setString(3, itemToSave.getGameDate());

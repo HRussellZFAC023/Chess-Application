@@ -35,7 +35,6 @@ public class Main extends Application {
 
     private static ButtonType option1;
     private Space[][] spaces = new Space[8][8];
-    private int moveId;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -312,8 +311,8 @@ public class Main extends Application {
 
 
     private static Optional dialogueBox (String displayText, String button1, String button2){
-        option1 = new ButtonType(button1, ButtonBar.ButtonData.YES);
-        ButtonType option2 = new ButtonType(button2, ButtonBar.ButtonData.NO);
+        option1 = new ButtonType(button1, ButtonBar.ButtonData.LEFT);
+        ButtonType option2 = new ButtonType(button2, ButtonBar.ButtonData.RIGHT);
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, displayText, option1, option2);
 
