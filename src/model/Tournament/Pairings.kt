@@ -1,4 +1,4 @@
-package Model.Tournament
+package model.Tournament
 
 class Pairings(var roundNo: Int, var p1Number: Int, p2Number: Int, var roundId: Int, var tournamentId: Int){
     override fun toString(): String {

@@ -1,6 +1,6 @@
-package Model.Game;
+package model.game;
 
-import Model.DatabaseConnection;
+import model.DatabaseConnection;
 
 import java.util.List;
 

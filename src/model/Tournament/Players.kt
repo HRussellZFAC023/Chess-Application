@@ -1,4 +1,4 @@
-package Model.Tournament
+package model.Tournament
 
 class Players(var studentNumber: Int, var firstName : String, var lastName: String, var firstYear: Boolean) {
     override fun toString(): String {

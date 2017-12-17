@@ -1,6 +1,6 @@
-package Model.Tournament;
+package model.Tournament;
 
-import Model.DatabaseConnection;
+import model.DatabaseConnection;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -5,7 +5,6 @@
 	-fx-pref-width:  85px;
 	/* prevent rounded buttons */
 	-fx-background-radius: 0em;
-
 }
 
 .chess-space-light {
@@ -29,8 +28,6 @@
     -fx-font-size: 12pt;
     -fx-font-family: "Courier New";
 }
-
-
 
 .table-view{
 	-fx-alignment: center;

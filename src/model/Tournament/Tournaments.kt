@@ -1,6 +1,4 @@
-package Model.Tournament
-
-import java.util.*
+package model.Tournament
 
 class Tournaments(var tournamentID: Int, var date: String, var location: String){
     override fun toString(): String {
