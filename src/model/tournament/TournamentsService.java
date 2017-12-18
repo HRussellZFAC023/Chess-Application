@@ -1,4 +1,4 @@
-package model.Tournament;
+package model.tournament;
 
 import model.DatabaseConnection;
 
@@ -9,7 +9,7 @@ import java.util.List;
 
 public class TournamentsService {
     public static void selectAll(List<Tournaments> targetList, DatabaseConnection database) {
-        PreparedStatement statement = database.newStatement("SELECT Tournament_ID, Date, Location FROM Tournament");
+        PreparedStatement statement = database.newStatement("SELECT Tournament_ID, Date, Location FROM tournament");
 
         try {
             if (statement != null) {

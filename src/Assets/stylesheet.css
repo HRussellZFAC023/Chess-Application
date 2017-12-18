@@ -30,7 +30,6 @@
 }
 
 .table-view{
-	-fx-alignment: center;
     -fx-text-alignment: center;
     -fx-font-style: italic;
     -fx-pref-rows: 2;
@@ -38,6 +37,5 @@
     -fx-pref-width: 200px;
     /*removes blue glow on selection*/
     -fx-background-color: transparent;
-
 }
 

@@ -1,8 +1,8 @@
-package Controller;
+package controller;
 import model.DatabaseConnection;
 import model.game.Games;
 import model.game.GamesService;
-import model.Tournament.*;
+import model.tournament.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -16,14 +16,14 @@ import javafx.stage.WindowEvent;
 
 public class DataController {
 
-    private DatabaseConnection tournamentDatabase;
-    private DatabaseConnection gameDatabase;
+    private final DatabaseConnection tournamentDatabase;
+    private final DatabaseConnection gameDatabase;
     private ButtonType option1;
 
     public DataController () {
         System.out.println("Initialising main controller...");
-        tournamentDatabase = new DatabaseConnection("Tournament_Database.db");
-        gameDatabase = new DatabaseConnection("Moves_Database.db");
+        tournamentDatabase = new DatabaseConnection("src\\Assets\\Moves_Database.db");
+        gameDatabase = new DatabaseConnection("src\\Assets\\Tournament_Database.db");
     }
 
     public void testDb () {

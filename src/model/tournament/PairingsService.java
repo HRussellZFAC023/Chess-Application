@@ -1,4 +1,4 @@
-package model.Tournament;
+package model.tournament;
 
 import model.DatabaseConnection;
 

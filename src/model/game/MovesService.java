@@ -9,7 +9,7 @@ import java.util.List;
 class MovesService {
 
     public static void selectAll(List<Moves> destination, DatabaseConnection database) { }
-    public static Moves selectById(int id, DatabaseConnection database) {
+    private static Moves selectById (int id,DatabaseConnection database) {
         return null;
     }
     public static void save(Moves itemToSave, DatabaseConnection database) {

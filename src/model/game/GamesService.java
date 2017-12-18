@@ -28,7 +28,7 @@ public class GamesService {
         }
 
     }
-    public static Games selectById(int id, DatabaseConnection database) {
+    private static Games selectById (int id,DatabaseConnection database) {
         return null;
     }
     public static void save(Games itemToSave, DatabaseConnection database) {

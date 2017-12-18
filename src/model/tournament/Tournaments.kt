@@ -1,6 +1,6 @@
-package model.Tournament
+package model.tournament
 
-class Tournaments(var tournamentID: Int, var date: String, var location: String){
+class Tournaments(private var tournamentID: Int, private var date: String, private var location: String){
     override fun toString(): String {
         return "Tournaments(tournamentID=$tournamentID, date=$date, location='$location')"
     }
