@@ -37,14 +37,14 @@ public class ChessBoard extends GridPane {
 
     private void defineStartPositions () {
         this.spaces[0][0].setPiece( new Rook  (true) );
-//        this.spaces[1][0].setPiece( new Knight(true) );
-//        this.spaces[2][0].setPiece( new Bishop(true) );
-//        this.spaces[3][0].setPiece( new Queen (true) );
-//        this.spaces[4][0].setPiece( new King  (true) );
-//        this.spaces[5][0].setPiece( new Bishop(true) );
-//        this.spaces[6][0].setPiece( new Knight(true) );
-//        this.spaces[7][0].setPiece( new Rook  (true) );
-//
+        this.spaces[1][0].setPiece( new Knight(true) );
+        this.spaces[2][0].setPiece( new Bishop(true) );
+        this.spaces[3][0].setPiece( new Queen (true) );
+        this.spaces[4][0].setPiece( new King  (true) );
+        this.spaces[5][0].setPiece( new Bishop(true) );
+        this.spaces[6][0].setPiece( new Knight(true) );
+        this.spaces[7][0].setPiece( new Rook  (true) );
+
 //        for (int i = 0; i < this.spaces[0].length; i++)
 //            this.spaces[i][1].setPiece( new Pawn(true) );
 //
@@ -57,10 +57,10 @@ public class ChessBoard extends GridPane {
 //        this.spaces[5][7].setPiece( new Bishop(false) );
 //        this.spaces[6][7].setPiece( new Knight(false) );
 //        this.spaces[7][7].setPiece( new Rook  (false) );
-//
+
 //        for (int i = 0; i < this.spaces[0].length; i++)
 //            this.spaces[i][6].setPiece( new Pawn(false) );
-
+//
     }
 
     private void onSpaceClick (int x,int y) {

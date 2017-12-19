@@ -1,7 +1,6 @@
 package controller
 
 import javafx.scene.control.Button
-import javafx.scene.image.ImageView
 
 
 data class Space(private var light: Boolean, var x: Int, var y: Int ) : Button() {
@@ -18,7 +17,11 @@ data class Space(private var light: Boolean, var x: Int, var y: Int ) : Button()
     fun setPiece(piece: Piece) {
         print(piece.toString())
         this.piece = piece
-        this.graphic = ImageView(piece.getImageString())
+        val img = WrappedImageView(piece.getImage())
+        this.graphic = img
+
     }
 
+
 }
+
