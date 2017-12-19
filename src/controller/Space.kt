@@ -4,7 +4,8 @@ import javafx.scene.control.Button
 import javafx.scene.image.ImageView
 
 
-data class Space(private var light: Boolean, var x: Int, var y: Int, private var piece: Piece) : Button() {
+data class Space(private var light: Boolean, var x: Int, var y: Int ) : Button() {
+    private var piece: Piece? = null
 
     init {
         styleClass.add("chess-space")
@@ -15,8 +16,9 @@ data class Space(private var light: Boolean, var x: Int, var y: Int, private var
     }
 
     fun setPiece(piece: Piece) {
-        //todo fix error here
-        this!!.graphic = ImageView(this.piece.toString())
+        print(piece.toString())
+        this.piece = piece
+        this.graphic = ImageView(piece.getImageString())
     }
 
 }

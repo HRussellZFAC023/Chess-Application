@@ -16,7 +16,7 @@ public class ChessBoard extends GridPane {
             for (int y = 0;y < 8;y++) {
 
                 light = ((x + y) % 2 == 0);
-                spaces[x - 1][y] = new Space (light,x,y,null);
+                spaces[x - 1][y] = new Space (light,x,y);
                 final int Xval = (x - 1);
                 final int Yval = y;
                 spaces[x - 1][(y)].setOnAction (e -> onSpaceClick (Xval,Yval));
