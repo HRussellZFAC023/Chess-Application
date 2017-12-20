@@ -99,7 +99,7 @@ public class Main extends Application {
         root.getChildren().add(borderPane);
         borderPane.setPadding(new Insets(40));
 
-        ChessBoard chessBoard = new ChessBoard();
+        ChessBoard chessBoard = new ChessBoard(true);
         chessBoard.setAlignment(Pos.CENTER);
         chessBoard.setSize(stage.getHeight() -200);
         stage.heightProperty().addListener((obs, oldVal, newVal) -> chessBoard.setSize(stage.getHeight()-200));     //dynamically re-sises chessboard

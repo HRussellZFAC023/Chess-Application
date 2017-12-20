@@ -6,35 +6,41 @@ import javafx.scene.layout.GridPane;
 
 public class ChessBoard extends GridPane {
     private final Square[][] space = new Square[8][8];
+    private Square lastClickedSquare = null;
 
-    public ChessBoard () {
+    public ChessBoard (boolean white) {
         super();
         boolean light;
         char ascii = 65;
+       // white = ! white;
 
-        for (int x = 1;x <= 8;x++) {
-            for (int y = 0;y < 8;y++) {
+        for ( int x = 1;x <= 8;x++ ) {
+            for ( int y = 0;y < 8;y++ ) {
                 light = ((x + y) % 2 == 0);
-                space[x - 1][y] = new Square (light,x,y);
 
+                space[x - 1][y] = new Square( light , x , y );
                 final int Xval = (x - 1);
                 final int Yval = y;
 
+                if (white) { this.add(space[x - 1][y], x, 7 - y); }
+                else { this.add( space[x - 1][y] , x , y ); }
+                space[x - 1][(y)].setOnAction( e -> onSpaceClick( Xval , Yval ) );
 
-                space[x - 1][(y)].setOnAction (e -> onSpaceClick (Xval,Yval));
-                this.add (space[(x - 1)][y],x,y);
             }
             //sets row labels
-            Label xchar = new Label (Character.toString (ascii++));
-            this.add (xchar,x,8);
+            Label xchar = new Label( Character.toString( ascii++ ) );
+            this.add( xchar , x , 8 );
+
             //sets column labels
-            Label ynum = new Label ((Integer.toString (x)));
-            int columns = 8;
-            this.add (ynum,0,(columns - x));
+            Label ynum = new Label( (Integer.toString( x )) );
+            if( white ) {
+                this.add( ynum , 0 , (8 - x) ); //number of columns - x
+            } else {
+                this.add( ynum , 0 , x - 1);
+            }
+
         }
-        defineStartPositions ();
-
-
+        defineStartPositions();
 
     }
 
@@ -66,13 +72,21 @@ public class ChessBoard extends GridPane {
 
     }
 
-    private void onSpaceClick (int x,int y) {
-        System.out.println ("the x value is" + x);
-        System.out.println ("the y value is" + y);
+    private void onSpaceClick (int x, int y) {
+        System.out.println( ( char ) (x + 97) + "" + (y + 1) );
+        System.out.println( "the x value is " + x + "\nthe y value is " + y );
 
+        if(lastClickedSquare!=null) {
+            lastClickedSquare.setDefault();
+        }
+        space[x][y].setActive();
+        //space[x][y].setDefault();
+        lastClickedSquare = space[x][y];
     }
 
-    public void setSize(double size) { ;
+
+
+    public void setSize(double size) {
         this.setMinSize(size,size);
         this.setMaxSize(size,size);
         this.setPrefSize(size,size);
