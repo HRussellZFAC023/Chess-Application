@@ -12,7 +12,7 @@ open class Square(private var light: Boolean , var x: Int , var y: Int) : Button
     private var selected: Boolean = false
     var piece: Piece? = null
         set(value) {
-            this.piece = value
+            field = value
             this.img = piece!!.imageString
             this.imageView = WrappedImageView(img)
             this.graphic = imageView
@@ -25,12 +25,13 @@ open class Square(private var light: Boolean , var x: Int , var y: Int) : Button
     }
 
     fun setActive() {
+        //if square is not red, make it red. If red make it normal
+
         if(!this.selected) {
-            styleClass.add("chess-space-active")
             this.selected = true
+            styleClass.add("chess-space-active")
         } else {
-            styleClass.remove("chess-space-active")
-            this.selected = false
+            setDefault()
         }
         if (this.piece != null){
             println(piece.toString())
@@ -49,15 +50,16 @@ open class Square(private var light: Boolean , var x: Int , var y: Int) : Button
     }
 
     fun setDefault(){
+
+        if(this.selected) {
+            this.selected = false
+            styleClass.remove("chess-space-active")
+        }
+
         if (light)
             styleClass.add("chess-space-light")
         else
             styleClass.add("chess-space-dark")
-
-        if (selected) {
-            this.selected = false
-            styleClass.remove("chess-space-active")
-        }
     }
 }
 
