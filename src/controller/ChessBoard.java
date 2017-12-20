@@ -5,7 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 public class ChessBoard extends GridPane {
-    private final Space[][] spaces = new Space[8][8];
+    private final Square[][] space = new Square[8][8];
 
     public ChessBoard () {
         super();
@@ -14,53 +14,56 @@ public class ChessBoard extends GridPane {
 
         for (int x = 1;x <= 8;x++) {
             for (int y = 0;y < 8;y++) {
-
                 light = ((x + y) % 2 == 0);
-                spaces[x - 1][y] = new Space (light,x,y);
+                space[x - 1][y] = new Square (light,x,y);
+
                 final int Xval = (x - 1);
                 final int Yval = y;
-                spaces[x - 1][(y)].setOnAction (e -> onSpaceClick (Xval,Yval));
-                this.add (spaces[(x - 1)][y],x,y);
+
+
+                space[x - 1][(y)].setOnAction (e -> onSpaceClick (Xval,Yval));
+                this.add (space[(x - 1)][y],x,y);
             }
             //sets row labels
             Label xchar = new Label (Character.toString (ascii++));
-            xchar.getStyleClass ().add ("label-fill");
             this.add (xchar,x,8);
             //sets column labels
             Label ynum = new Label ((Integer.toString (x)));
-            ynum.getStyleClass ().add ("label-fill");
             int columns = 8;
             this.add (ynum,0,(columns - x));
         }
         defineStartPositions ();
+
+
+
     }
 
     private void defineStartPositions () {
-        this.spaces[0][0].setPiece( new Rook  (true) );
-        this.spaces[1][0].setPiece( new Knight(true) );
-        this.spaces[2][0].setPiece( new Bishop(true) );
-        this.spaces[3][0].setPiece( new Queen (true) );
-        this.spaces[4][0].setPiece( new King  (true) );
-        this.spaces[5][0].setPiece( new Bishop(true) );
-        this.spaces[6][0].setPiece( new Knight(true) );
-        this.spaces[7][0].setPiece( new Rook  (true) );
+        this.space[0][0].setPiece( new Rook  (true) );
+        this.space[1][0].setPiece( new Knight(true) );
+        this.space[2][0].setPiece( new Bishop(true) );
+        this.space[3][0].setPiece( new Queen (true) );
+        this.space[4][0].setPiece( new King  (true) );
+        this.space[5][0].setPiece( new Bishop(true) );
+        this.space[6][0].setPiece( new Knight(true) );
+        this.space[7][0].setPiece( new Rook  (true) );
 
-//        for (int i = 0; i < this.spaces[0].length; i++)
-//            this.spaces[i][1].setPiece( new Pawn(true) );
-//
-//        // black pieces
-//        this.spaces[0][7].setPiece( new Rook  (false) );
-//        this.spaces[1][7].setPiece( new Knight(false) );
-//        this.spaces[2][7].setPiece( new Bishop(false) );
-//        this.spaces[3][7].setPiece( new Queen (false) );
-//        this.spaces[4][7].setPiece( new King  (false) );
-//        this.spaces[5][7].setPiece( new Bishop(false) );
-//        this.spaces[6][7].setPiece( new Knight(false) );
-//        this.spaces[7][7].setPiece( new Rook  (false) );
+        for (int i = 0;i < this.space[0].length;i++)
+            this.space[i][1].setPiece( new Pawn(true) );
 
-//        for (int i = 0; i < this.spaces[0].length; i++)
-//            this.spaces[i][6].setPiece( new Pawn(false) );
-//
+        // black pieces
+        this.space[0][7].setPiece( new Rook  (false) );
+        this.space[1][7].setPiece( new Knight(false) );
+        this.space[2][7].setPiece( new Bishop(false) );
+        this.space[3][7].setPiece( new Queen (false) );
+        this.space[4][7].setPiece( new King  (false) );
+        this.space[5][7].setPiece( new Bishop(false) );
+        this.space[6][7].setPiece( new Knight(false) );
+        this.space[7][7].setPiece( new Rook  (false) );
+
+        for (int i = 0;i < this.space[0].length;i++)
+            this.space[i][6].setPiece( new Pawn(false) );
+
     }
 
     private void onSpaceClick (int x,int y) {
@@ -69,5 +72,11 @@ public class ChessBoard extends GridPane {
 
     }
 
+    public void setSize(double size) { ;
+        this.setMinSize(size,size);
+        this.setMaxSize(size,size);
+        this.setPrefSize(size,size);
+
+    }
 
 }

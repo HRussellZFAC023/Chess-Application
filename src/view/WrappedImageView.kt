@@ -1,17 +1,22 @@
-package controller
+package view
 
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 
+
+
+
 class WrappedImageView(i: Image?) : ImageView() {
     private var i: Image? = null
+
     init {
         this.image = i
-        isPreserveRatio = false
+        isPreserveRatio = true
+
     }
 
     override fun minWidth(height: Double): Double {
-        return 40.0
+        return 50.0
     }
 
     override fun prefWidth(height: Double): Double {
@@ -20,11 +25,11 @@ class WrappedImageView(i: Image?) : ImageView() {
     }
 
     override fun maxWidth(height: Double): Double {
-        return 16384.0
+        return 10000.0
     }
 
     override fun minHeight(width: Double): Double {
-        return 40.0
+        return 50.0
     }
 
     override fun prefHeight(width: Double): Double {
@@ -33,7 +38,7 @@ class WrappedImageView(i: Image?) : ImageView() {
     }
 
     override fun maxHeight(width: Double): Double {
-        return 16384.0
+        return 10000.0
     }
 
     override fun isResizable(): Boolean {
@@ -42,6 +47,8 @@ class WrappedImageView(i: Image?) : ImageView() {
 
     override fun resize(width: Double, height: Double) {
         fitWidth = width
-        fitHeight = height
+        fitHeight = width
+
     }
+
 }

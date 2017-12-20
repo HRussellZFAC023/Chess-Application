@@ -14,8 +14,8 @@ abstract class Piece(private var colour: Boolean){
 
     fun getImage(): Image? {
         return imageString
-    }
 
+    }
 
 }
 
