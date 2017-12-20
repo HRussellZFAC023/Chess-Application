@@ -80,8 +80,15 @@ public class ChessBoard extends GridPane {
             lastClickedSquare.setDefault();
         }
         space[x][y].setActive();
-        //space[x][y].setDefault();
+
         lastClickedSquare = space[x][y];
+
+
+        selectedPiece(x,y);
+    }
+
+    private void selectedPiece(int x , int y){
+
     }
 
 

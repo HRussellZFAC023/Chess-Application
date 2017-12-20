@@ -4,18 +4,17 @@ import javafx.scene.image.Image
 
 
 abstract class Piece(private var colour: Boolean){
-    private val imageString: Image = Image("assets/pieces/" + this.colour.toString() + this.javaClass.simpleName + ".png")
+    internal val imageString: Image = Image("assets/pieces/" + this.colour.toString() + this.javaClass.simpleName + ".png")
+
 
     override fun toString(): String {
         var c = "white"
         if(!colour) c = "black"
-        return "Piece(colour=$c, imageString='$imageString')"
+        return "Piece(colour=$c, Type='${javaClass.name.substringAfterLast(".")}')"
     }
 
-    fun getImage(): Image? {
-        return imageString
 
-    }
+
 
 }
 
