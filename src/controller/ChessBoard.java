@@ -3,6 +3,7 @@ package controller;
 import controller.pieces.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import model.game.Moves;
 import org.jetbrains.annotations.NotNull;
 
 public class ChessBoard extends GridPane {
@@ -77,24 +78,50 @@ public class ChessBoard extends GridPane {
         System.out.println( ( char ) (x + 97) + "" + (y + 1) );
         System.out.println( "the x value is " + x + "\nthe y value is " + y );
 
-       // space[x][y].setActive();
+        if(space[x][y].getPiece() != null)
+        {
+            MoveList[] moves = space[x][y].getPiece().getPieceMoves();
+            for( MoveList m :moves) {
+                System.out.println( m.getX() );
+                System.out.println( m.getY() );
+                space[x][y].arm();
+            }
+
+        }
+
+
+
+
+
+
+       // if the space contains a piece
         if( lastClickedSquare != null &&
             lastClickedSquare.getPiece() !=null &&
             lastClickedSquare != space[x][y] )
         {
+            //fire available moves
+            //noinspection ConstantConditions (not null dealt with)
+           // MoveList[] moves = space[x][y].getPiece().getPieceMoves();
+
 
             //noinspection ConstantConditions (NullPointer dealt with)
             if ( space[x][y].getPiece() == null ||
             space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() )
             {
+
+
+
+
                 space[x][y].setPiece(lastClickedSquare.getPiece());
                 lastClickedSquare.removePiece();
             }
 
-            //todo fire available moves
+
             //todo limit to available spaces
         }
         lastClickedSquare = space[x][y];//stores last piece click
+
+
 
 
 //        if(lastClickedSquare!=null && lastClickedSquare != space[x][y]) {
@@ -103,11 +130,6 @@ public class ChessBoard extends GridPane {
 //        lastClickedSquare = space[x][y];a
 
     }
-
-    private void selectedPiece(int x , int y){
-
-    }
-
 
 
     public void setSize(double size) {
