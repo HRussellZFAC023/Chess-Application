@@ -76,14 +76,6 @@ public class ChessBoard extends GridPane {
         System.out.println( ( char ) (x + 97) + "" + (y + 1) );
         System.out.println( "the x value is " + x + "\nthe y value is " + y );
 
-        space[x][y].setActive();
-        if(lastClickedSquare!=null && lastClickedSquare != space[x][y]) {
-            lastClickedSquare.setDefault();
-        }
-        lastClickedSquare = space[x][y];
-
-
-
     }
 
     private void selectedPiece(int x , int y){
