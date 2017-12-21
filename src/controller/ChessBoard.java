@@ -3,6 +3,7 @@ package controller;
 import controller.pieces.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import org.jetbrains.annotations.NotNull;
 
 public class ChessBoard extends GridPane {
     private final Square[][] space = new Square[8][8];
@@ -75,6 +76,31 @@ public class ChessBoard extends GridPane {
     private void onSpaceClick (int x, int y) {
         System.out.println( ( char ) (x + 97) + "" + (y + 1) );
         System.out.println( "the x value is " + x + "\nthe y value is " + y );
+
+       // space[x][y].setActive();
+        if( lastClickedSquare != null &&
+            lastClickedSquare.getPiece() !=null &&
+            lastClickedSquare != space[x][y] )
+        {
+
+            //noinspection ConstantConditions (NullPointer dealt with)
+            if ( space[x][y].getPiece() == null ||
+            space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() )
+            {
+                space[x][y].setPiece(lastClickedSquare.getPiece());
+                lastClickedSquare.removePiece();
+            }
+
+            //todo fire available moves
+            //todo limit to available spaces
+        }
+        lastClickedSquare = space[x][y];//stores last piece click
+
+
+//        if(lastClickedSquare!=null && lastClickedSquare != space[x][y]) {
+//            lastClickedSquare.setDefault();
+//        }
+//        lastClickedSquare = space[x][y];a
 
     }
 

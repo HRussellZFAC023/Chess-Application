@@ -13,8 +13,17 @@ abstract class Piece(private var colour: Boolean){
         return "Piece(colour=$c, Type='${javaClass.name.substringAfterLast(".")}')"
     }
 
+    abstract fun getPieceMoves(): Array<MoveList> //promise to implement this method
 
+    fun getColour(): Boolean {
+        return colour
+    }
 
 
 }
+
+
+
+
+
 
