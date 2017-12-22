@@ -16,5 +16,8 @@ class Knight(colour: Boolean) : Piece(colour) {
                 MoveList.KNIGHT_LEFT_DOWN
         )
     }
+    override fun getRange(): Int {
+        return 1
+    }
 
 }

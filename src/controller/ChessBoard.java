@@ -3,11 +3,15 @@ package controller;
 import controller.pieces.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import java.util.ArrayList;
+
 
 public class ChessBoard extends GridPane {
     private final Square[][] space = new Square[8][8];
     private Square lastClickedSquare = null;
     private int turnCounter = 0;
+    private ArrayList<Square> legalMoves = new ArrayList<Square>();
+    ;
 
     public ChessBoard (boolean white) {
         super();
@@ -28,7 +32,9 @@ public class ChessBoard extends GridPane {
                 space[x - 1][(y)].setOnMousePressed(event -> onSpaceClick( Xval , Yval ) );
 
                 space[x - 1][(y)].setOnMouseReleased(event -> {
-                    showAvailableMoves( Xval, Yval, false );
+                    for ( Square legalMove : legalMoves ) {
+                        legalMove.disarm();
+                    }
                 });
 
             }
@@ -82,37 +88,26 @@ public class ChessBoard extends GridPane {
         //System.out.println( ( char ) (x + 97) + "" + (y + 1) );
         //System.out.println( "the x value is " + x + "\nthe y value is " + y );
 
-        showAvailableMoves( x , y , true );// if the space contains a piece
+        showAvailableMoves( x , y );// if the space contains a piece
 
         if ( lastClickedSquare != null &&
                 lastClickedSquare.getPiece() != null &&
                 lastClickedSquare != space[x][y] ) {
             //noinspection ConstantConditions (NullPointer imposible)
-            if ( (space[x][y].getPiece() == null) ||
-                    (space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour()) ) {
+            if ( space[x][y].getPiece() == null &&
+                    legalMoves.contains(space[x][y]) || //if clicked on an empty square piece
+                    space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
+                    legalMoves.contains(space[x][y])){ //AND legal move
+                legalMoves.clear();
+                showAvailableMoves( x , y );
+
                 turnCounter++;
                 System.out.println( turnCounter );
                 space[x][y].setPiece( lastClickedSquare.getPiece() );
                 lastClickedSquare.removePiece();
 
-
                 if ( turnCounter % 2 == 0 );
-//                    if(lastClickedSquare.getPiece().getColour()){
-//                        space[x][y].setPiece( lastClickedSquare.getPiece() );
-//
-//                    }else{
-//                        turnCounter--;
-//                    }
-//                    lastClickedSquare.removePiece();
-//
-//                }else {
-//                    if(!lastClickedSquare.getPiece().getColour()) {
-//                        space[x][y].setPiece( lastClickedSquare.getPiece() );
-//                    }else{
-//                        turnCounter--;
-//                    }
-//                    lastClickedSquare.removePiece();
-//                }
+
             }
         }
         lastClickedSquare = space[x][y];//stores last piece click
@@ -121,23 +116,21 @@ public class ChessBoard extends GridPane {
 //todo 1) make TURNS 2) Limit to red 3) extend red
 
 
-    private void showAvailableMoves(int x , int y , boolean enable) {
+    private void showAvailableMoves(int x , int y) {
         if ( space[x][y].getPiece() != null ) {
             MoveList[] moves = space[x][y].getPiece().getPieceMoves();
-            for(int i = 1; i<8; i++){
-                for ( MoveList m : moves ) {
+            for(int i = 1; i<=space[x][y].getPiece().getRange(); i++){
+                for ( int ai = 0; ai < moves.length; ai++ ) {
+                    MoveList m = moves[ai];
                     try {
-                        if ( enable ) {
-                            space[x][y].arm();
-                            space[x + m.getX()*i][y + m.getY()*i].arm();
-                        }else {
-                            space[x][y].disarm();
-                            space[x + m.getX()*i][y + m.getY()*i].disarm();
+                        if ( space[x + m.getX() * i][y + m.getY() * i] == null ) {
+                            legalMoves.add( ai , space[x + m.getX() * i][y + m.getY() * i] );
+                            legalMoves.get(ai).arm();
                         }
-                    } catch ( Exception ignored ) { }
+
+                    } catch ( Exception ignored ) {}
                 }
             }
-
         }
     }
 

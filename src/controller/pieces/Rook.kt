@@ -12,5 +12,8 @@ class Rook(colour: Boolean) : Piece(colour){
                 MoveList.LEFT
         )
     }
+    override fun getRange(): Int {
+        return 8
+    }
 }
 

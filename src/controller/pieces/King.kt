@@ -16,6 +16,9 @@ class King(colour: Boolean) : Piece(colour) {
                 MoveList.UP_LEFT
         )
     }
+    override fun getRange(): Int {
+        return 1
+    }
 }
 
 
