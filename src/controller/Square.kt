@@ -56,5 +56,9 @@ open class Square(private var light: Boolean , var x: Int , var y: Int) : Button
         styleClass.remove("chess-space-active")
         super.disarm()
     }
+
+    override fun toString(): String {
+        return "Square(light=$light, x=$x, y=$y, piece=$piece)"
+    }
 }
 

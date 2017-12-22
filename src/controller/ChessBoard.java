@@ -4,20 +4,23 @@ import controller.pieces.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ChessBoard extends GridPane {
+    //Attributes describing chessboards state
     private final Square[][] space = new Square[8][8];
     private Square lastClickedSquare = null;
     private int turnCounter = 0;
-    private ArrayList<Square> legalMoves = new ArrayList<Square>();
-    ;
+    private List<Square> legalMoves = new ArrayList<>();
+    private boolean whitesTurn;
+
 
     public ChessBoard (boolean white) {
         super();
         boolean light;
         char ascii = 65;
-       // white = ! white;
+        whitesTurn = white;
 
         for ( int x = 1;x <= 8;x++ ) {
             for ( int y = 0;y < 8;y++ ) {
@@ -88,46 +91,65 @@ public class ChessBoard extends GridPane {
         //System.out.println( ( char ) (x + 97) + "" + (y + 1) );
         //System.out.println( "the x value is " + x + "\nthe y value is " + y );
 
-        showAvailableMoves( x , y );// if the space contains a piece
 
-        if ( lastClickedSquare != null &&
-                lastClickedSquare.getPiece() != null &&
-                lastClickedSquare != space[x][y] ) {
-            //noinspection ConstantConditions (NullPointer imposible)
-            if ( space[x][y].getPiece() == null &&
-                    legalMoves.contains(space[x][y]) || //if clicked on an empty square piece
-                    space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
-                    legalMoves.contains(space[x][y])){ //AND legal move
-                legalMoves.clear();
-                showAvailableMoves( x , y );
+        //because null this section is skipped until after showAvailableMoves()
+        try {
+        //    System.out.println( "evento 1" );
+            if ( lastClickedSquare != null &&
+                    lastClickedSquare.getPiece() != null &&
+                    lastClickedSquare != space[x][y] ) {
+               // System.out.println( "evento 3" );
+                //noinspection ConstantConditions (NullPointer imposible)
+                if ( space[x][y].getPiece() == null &&  //if the space is empty
+                        legalMoves.contains(space[x][y]) || //AND legal move
+                        space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
+                                legalMoves.contains(space[x][y])){//AND legal move
 
-                turnCounter++;
-                System.out.println( turnCounter );
-                space[x][y].setPiece( lastClickedSquare.getPiece() );
-                lastClickedSquare.removePiece();
+                    if(whitesTurn == lastClickedSquare.getPiece().getColour())
+                    {
+                        System.out.println( legalMoves );
+                        legalMoves.clear();
 
-                if ( turnCounter % 2 == 0 );
+                        turnCounter++;
+                        System.out.println( turnCounter );
+                        space[x][y].setPiece( lastClickedSquare.getPiece() );
+                        lastClickedSquare.removePiece();
+                    }
 
+                    if ( turnCounter % 2 == 0 ){
+                        System.out.println( "whites turn" );
+                        whitesTurn = true;
+                    }else{
+                        System.out.println( "blacks turn" );
+                        whitesTurn = false;
+                    }
+
+                }
             }
+
+            showAvailableMoves( x , y );// if the space contains a piece
+            lastClickedSquare = space[x][y];//stores last piece click
+
+        }catch ( Exception invalidMove ){
+            System.out.println( "invalid" );
+
         }
-        lastClickedSquare = space[x][y];//stores last piece click
 
     }
 //todo 1) make TURNS 2) Limit to red 3) extend red
 
 
     private void showAvailableMoves(int x , int y) {
+       // System.out.println( "evento 2" );
+        int ai = 0;
         if ( space[x][y].getPiece() != null ) {
             MoveList[] moves = space[x][y].getPiece().getPieceMoves();
             for(int i = 1; i<=space[x][y].getPiece().getRange(); i++){
-                for ( int ai = 0; ai < moves.length; ai++ ) {
-                    MoveList m = moves[ai];
+                for ( MoveList m : moves  ) {
                     try {
-                        if ( space[x + m.getX() * i][y + m.getY() * i] == null ) {
-                            legalMoves.add( ai , space[x + m.getX() * i][y + m.getY() * i] );
-                            legalMoves.get(ai).arm();
-                        }
-
+                        legalMoves.add( ai , space[x + m.getX() * i][y + m.getY() * i] );       //first index is null, slightly dodgy
+                        legalMoves.get(ai).arm();
+                        ai++;
                     } catch ( Exception ignored ) {}
                 }
             }
