@@ -20,21 +20,20 @@ open class Square(private var light: Boolean , var x: Int , var y: Int) : Button
 
     init {
         styleClass.add("chess-space")
-        setDefault()
+        if (light)
+            styleClass.add("chess-space-light")
+        else
+            styleClass.add("chess-space-dark")
     }
 
     fun setActive() {
-        //if square is not red, make it red. If red make it normal
-//        if(!this.selected) {
-//            this.selected = true
-//            styleClass.add("chess-space-active")
-//        } else {
-//            setDefault()
-//        }
-//        if (this.piece != null){
-//            println(piece.toString())
-//            removePiece()
-//        }
+
+        if (this.piece != null){
+            println(piece.toString())
+            //todo when a piece is clicked, save its current position
+            //todo if last space pressed was a piece (current position != null) then move it to space clicked
+            //removePiece(this.piece)
+        }
 
     }
 
@@ -47,16 +46,6 @@ open class Square(private var light: Boolean , var x: Int , var y: Int) : Button
          }
     }
 
-    fun setDefault(){
-//        if(this.selected) {
-//            this.selected = false
-//            styleClass.remove("chess-space-active")
-//        }
-        if (light)
-            styleClass.add("chess-space-light")
-        else
-            styleClass.add("chess-space-dark")
-    }
 
     override fun arm() {
         styleClass.add("chess-space-active")

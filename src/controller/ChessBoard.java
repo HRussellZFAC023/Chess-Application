@@ -3,12 +3,11 @@ package controller;
 import controller.pieces.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import model.game.Moves;
-import org.jetbrains.annotations.NotNull;
 
 public class ChessBoard extends GridPane {
     private final Square[][] space = new Square[8][8];
     private Square lastClickedSquare = null;
+    private int turnCounter = 0;
 
     public ChessBoard (boolean white) {
         super();
@@ -26,7 +25,11 @@ public class ChessBoard extends GridPane {
 
                 if (white) { this.add(space[x - 1][y], x, 7 - y); }
                 else { this.add( space[x - 1][y] , x , y ); }
-                space[x - 1][(y)].setOnAction( e -> onSpaceClick( Xval , Yval ) );
+                space[x - 1][(y)].setOnMousePressed(event -> onSpaceClick( Xval , Yval ) );
+
+                space[x - 1][(y)].setOnMouseReleased(event -> {
+                    showAvailableMoves( Xval, Yval, false );
+                });
 
             }
             //sets row labels
@@ -45,6 +48,7 @@ public class ChessBoard extends GridPane {
         defineStartPositions();
 
     }
+
 
     private void defineStartPositions () {
         this.space[0][0].setPiece( new Rook  (true) );
@@ -74,61 +78,67 @@ public class ChessBoard extends GridPane {
 
     }
 
-    private void onSpaceClick (int x, int y) {
-        System.out.println( ( char ) (x + 97) + "" + (y + 1) );
-        System.out.println( "the x value is " + x + "\nthe y value is " + y );
+    private void onSpaceClick(int x , int y) {
+        //System.out.println( ( char ) (x + 97) + "" + (y + 1) );
+        //System.out.println( "the x value is " + x + "\nthe y value is " + y );
 
-        if(space[x][y].getPiece() != null)
-        {
-            MoveList[] moves = space[x][y].getPiece().getPieceMoves();
-            for( MoveList m :moves) {
-                System.out.println( m.getX() );
-                System.out.println( m.getY() );
-                space[x][y].arm();
-            }
+        showAvailableMoves( x , y , true );// if the space contains a piece
 
-        }
-
-
-
-
-
-
-       // if the space contains a piece
-        if( lastClickedSquare != null &&
-            lastClickedSquare.getPiece() !=null &&
-            lastClickedSquare != space[x][y] )
-        {
-            //fire available moves
-            //noinspection ConstantConditions (not null dealt with)
-           // MoveList[] moves = space[x][y].getPiece().getPieceMoves();
-
-
-            //noinspection ConstantConditions (NullPointer dealt with)
-            if ( space[x][y].getPiece() == null ||
-            space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() )
-            {
-
-
-
-
-                space[x][y].setPiece(lastClickedSquare.getPiece());
+        if ( lastClickedSquare != null &&
+                lastClickedSquare.getPiece() != null &&
+                lastClickedSquare != space[x][y] ) {
+            //noinspection ConstantConditions (NullPointer imposible)
+            if ( (space[x][y].getPiece() == null) ||
+                    (space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour()) ) {
+                turnCounter++;
+                System.out.println( turnCounter );
+                space[x][y].setPiece( lastClickedSquare.getPiece() );
                 lastClickedSquare.removePiece();
+
+
+                if ( turnCounter % 2 == 0 );
+//                    if(lastClickedSquare.getPiece().getColour()){
+//                        space[x][y].setPiece( lastClickedSquare.getPiece() );
+//
+//                    }else{
+//                        turnCounter--;
+//                    }
+//                    lastClickedSquare.removePiece();
+//
+//                }else {
+//                    if(!lastClickedSquare.getPiece().getColour()) {
+//                        space[x][y].setPiece( lastClickedSquare.getPiece() );
+//                    }else{
+//                        turnCounter--;
+//                    }
+//                    lastClickedSquare.removePiece();
+//                }
             }
-
-
-            //todo limit to available spaces
         }
         lastClickedSquare = space[x][y];//stores last piece click
 
+    }
+//todo 1) make TURNS 2) Limit to red 3) extend red
 
 
+    private void showAvailableMoves(int x , int y , boolean enable) {
+        if ( space[x][y].getPiece() != null ) {
+            MoveList[] moves = space[x][y].getPiece().getPieceMoves();
+            for(int i = 1; i<8; i++){
+                for ( MoveList m : moves ) {
+                    try {
+                        if ( enable ) {
+                            space[x][y].arm();
+                            space[x + m.getX()*i][y + m.getY()*i].arm();
+                        }else {
+                            space[x][y].disarm();
+                            space[x + m.getX()*i][y + m.getY()*i].disarm();
+                        }
+                    } catch ( Exception ignored ) { }
+                }
+            }
 
-//        if(lastClickedSquare!=null && lastClickedSquare != space[x][y]) {
-//            lastClickedSquare.setDefault();
-//        }
-//        lastClickedSquare = space[x][y];a
-
+        }
     }
 
 

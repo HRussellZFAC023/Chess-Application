@@ -23,7 +23,7 @@ public enum MoveList {
     KNIGHT_LEFT_DOWN(-2, -1),
 
     DOUBLE_UP(0, 2),
-    DOUBLE_DOWN(0, -2);
+    DOUBLE_DOWN(2, 0);
 
 
 
