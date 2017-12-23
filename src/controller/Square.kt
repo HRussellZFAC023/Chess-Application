@@ -4,7 +4,6 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import view.WrappedImageView
 
-
 open class Square(private var light: Boolean , private var x: Int , private var y: Int) : Button() {
 
     private var img: Image? = null
@@ -36,19 +35,19 @@ open class Square(private var light: Boolean , private var x: Int , private var 
          }
     }
 
-    override fun arm() {
+    fun armButton() {
         styleClass.add("chess-space-active")
-        super.arm()
     }
 
-    override fun disarm() {
+    fun disarmButton() {
         this.isPressed = false
         styleClass.remove("chess-space-active")
-        super.disarm()
     }
 
     override fun toString(): String {
         return "Square(light=$light, x=$x, y=$y, piece=$piece)"
     }
+
+
 }
 

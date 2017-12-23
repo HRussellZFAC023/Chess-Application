@@ -15,6 +15,9 @@ abstract class Piece(private var colour: Boolean){
     fun getColour(): Boolean {
         return colour
     }
+    fun getPieceName(): String {
+        return javaClass.name.substringAfterLast(".")
+    }
 
 
     //promise to implement these methods
