@@ -189,6 +189,7 @@ public class ChessBoard extends GridPane {
         legalMoves.clear();
         space[x][y].armButton();
 
+        boolean collided;
         int ai = 0;
         int xVal;
         int yVal;
@@ -197,8 +198,10 @@ public class ChessBoard extends GridPane {
         if ( space[x][y].getPiece() != null ) {
             MoveList[] moves = space[x][y].getPiece().getPieceMoves();
             for ( MoveList m : moves ) {
+                collided = false;
                 for ( int i = 1;i <= space[x][y].getPiece().getRange();i++ ) {
 
+                    if (collided)break;
                     xVal = x + m.getX() * i;
                     yVal = y + m.getY() * i;
 
@@ -209,16 +212,19 @@ public class ChessBoard extends GridPane {
 
                     if ( yVal >= 0 && yVal < 8 && xVal >= 0 && xVal < 8 )//if square exists on board
                     {
+
                         if ( space[xVal][yVal].getPiece() == null ||
-                                space[xVal][yVal].getPiece().getColour() != space[x][y].getPiece().getColour() /*&& space[x][y].getPiece().getClass() !=*/ )
+                                space[xVal][yVal].getPiece().getColour() != space[x][y].getPiece().getColour())
                         {
                             legalMoves.add( ai , space[xVal][yVal] );
                             legalMoves.get( ai ).armButton();
                             ai++;
+                            if(space[xVal][yVal].getPiece() != null) collided = true;
                         } else {
                             //stops checking this move if pieces are the same color
                             break;
                         }
+
                     }
 
                 }

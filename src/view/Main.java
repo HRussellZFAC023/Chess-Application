@@ -135,8 +135,6 @@ public class Main extends Application {
         rightPane.getChildren().addAll(table,buttonPane);
         borderPane.setRight(rightPane);
         BorderPane.setAlignment(rightPane,Pos.CENTER);
-        //todo add hide icon and turn of move highlighting
-
 
     }
 
