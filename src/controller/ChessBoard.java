@@ -2,6 +2,8 @@ package controller;
 
 import controller.pieces.*;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +28,17 @@ public class ChessBoard extends GridPane {
             for ( int y = 0;y < 8;y++ ) {
                 light = ((x + y) % 2 == 0);
 
-                space[x - 1][y] = new Square( light , x , y );
-                final int Xval = (x - 1);
-                final int Yval = y;
+                final int xVal = (x - 1);
+                final int yVal = y;
+                space[xVal][y] = new Square( light , x , y );
 
-                if (white) { this.add(space[x - 1][y], x, 7 - y); }
-                else { this.add( space[x - 1][y] , x , y ); }
-                space[x - 1][(y)].setOnMousePressed(event -> onSpaceClick( Xval , Yval ) );
+                if (white) { this.add(space[xVal][yVal], x, 7 - y); }
+                else { this.add( space[xVal][yVal] , x , y ); }
 
-                space[x - 1][(y)].setOnMouseReleased(event -> {
-                    for ( Square legalMove : legalMoves ) {
-                        legalMove.disarm();
-                    }
-                });
+                setActionEvents(xVal,yVal);
+
+
+
 
             }
             //sets row labels
@@ -57,6 +57,60 @@ public class ChessBoard extends GridPane {
         defineStartPositions();
 
     }
+
+    private void setActionEvents(int x , int y) {
+        space[x][y].setOnMousePressed(event -> onSpaceClick( x , y ) );
+        space[x][y].setOnMouseReleased(event -> disarmLegalMoves());
+
+        space[x][y].setId(this.getClass().getSimpleName() + System.currentTimeMillis());
+        space[x][y].setOnDragDetected( event -> {
+            Dragboard db = space[x][y].startDragAndDrop(TransferMode.MOVE);
+            ClipboardContent content = new ClipboardContent();
+            //visual
+            if(space[x][y].getPiece() != null)
+            {
+                Image image = new Image(space[x][y].getPiece().getImgString(),
+                        space[x][y].getWidth(), space[x][y].getHeight(),
+                        true, true);
+                db.setDragView(image,50,50);
+            }
+            // Store node ID in order to know what is dragged.
+            content.putString(space[x][y].getId());
+            db.setContent(content);
+            event.consume();
+        });
+
+        space[x][y].setOnDragDropped((DragEvent event) -> {
+            disarmLegalMoves();
+            onSpaceClick( x , y );
+            event.setDropCompleted(true);
+            event.consume();
+        });
+
+        space[x][y].setOnDragOver((DragEvent event) -> {
+            if ( legalMoves.contains( space[x][y] )) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+            event.consume();
+        });
+
+        space[x][y].setOnDragDone((DragEvent event) -> {
+            disarmLegalMoves();
+            event.consume();
+        });
+
+
+    }
+
+    private void disarmLegalMoves(){
+        lastClickedSquare.disarm();
+        for ( Square legalMove : legalMoves ) {
+            legalMove.disarm();
+        }
+    }
+
+
+
 
 
     private void defineStartPositions () {
@@ -136,11 +190,11 @@ public class ChessBoard extends GridPane {
         }
 
     }
-//todo 1) make TURNS 2) Limit to red 3) extend red
 
 
     private void showAvailableMoves(int x , int y) {
        // System.out.println( "evento 2" );
+        space[x][y].arm();
         int ai = 0;
         if ( space[x][y].getPiece() != null ) {
             MoveList[] moves = space[x][y].getPiece().getPieceMoves();
@@ -160,8 +214,7 @@ public class ChessBoard extends GridPane {
     public void setSize(double size) {
         this.setMinSize(size,size);
         this.setMaxSize(size,size);
-        this.setPrefSize(size,size);
-
+        this.setPrefSize( size,size);
     }
 
 }

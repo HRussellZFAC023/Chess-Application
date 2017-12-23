@@ -5,14 +5,14 @@ import javafx.scene.image.ImageView
 import view.WrappedImageView
 
 
-open class Square(private var light: Boolean , var x: Int , var y: Int) : Button() {
+open class Square(private var light: Boolean , private var x: Int , private var y: Int) : Button() {
 
     private var img: Image? = null
     private var imageView: ImageView? = null
-    var piece: Piece? = null
+    protected var piece: Piece? = null
         set(value) {
             field = value
-            this.img = piece?.imageString
+            this.img = piece?.image
             this.imageView = WrappedImageView(img)
             this.graphic = imageView
         }
@@ -26,16 +26,6 @@ open class Square(private var light: Boolean , var x: Int , var y: Int) : Button
             styleClass.add("chess-space-dark")
     }
 
-    fun setActive() {
-
-        if (this.piece != null){
-            println(piece.toString())
-            //todo when a piece is clicked, save its current position
-            //todo if last space pressed was a piece (current position != null) then move it to space clicked
-            //removePiece(this.piece)
-        }
-
-    }
 
      fun removePiece() {
          if (this.piece != null) {
@@ -46,13 +36,13 @@ open class Square(private var light: Boolean , var x: Int , var y: Int) : Button
          }
     }
 
-
     override fun arm() {
         styleClass.add("chess-space-active")
         super.arm()
     }
 
     override fun disarm() {
+        this.isPressed = false
         styleClass.remove("chess-space-active")
         super.disarm()
     }

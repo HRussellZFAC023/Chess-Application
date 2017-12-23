@@ -7,7 +7,7 @@ import javafx.scene.image.ImageView
 
 
 class WrappedImageView(i: Image?) : ImageView() {
-    private var i: Image? = null
+   private var i: Image? = null
 
     init {
         this.image = i
@@ -46,6 +46,7 @@ class WrappedImageView(i: Image?) : ImageView() {
     }
 
     override fun resize(width: Double, height: Double) {
+        //both width to preserve ratio
         fitWidth = width
         fitHeight = width
 

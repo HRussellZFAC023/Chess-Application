@@ -4,7 +4,8 @@ import javafx.scene.image.Image
 
 
 abstract class Piece(private var colour: Boolean){
-    internal val imageString: Image = Image("assets/pieces/" + this.colour.toString() + this.javaClass.simpleName + ".png")
+    protected val imgString: String = ("assets/pieces/" + this.colour.toString() + this.javaClass.simpleName + ".png")
+    internal val image: Image = Image(imgString)
 
     override fun toString(): String {
         var c = "white"
@@ -14,6 +15,7 @@ abstract class Piece(private var colour: Boolean){
     fun getColour(): Boolean {
         return colour
     }
+
 
     //promise to implement these methods
     protected abstract fun getPieceMoves(): Array<MoveList>
