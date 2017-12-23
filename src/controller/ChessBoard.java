@@ -34,12 +34,7 @@ public class ChessBoard extends GridPane {
 
                 if (white) { this.add(space[xVal][yVal], x, 7 - y); }
                 else { this.add( space[xVal][yVal] , x , y ); }
-
                 setActionEvents(xVal,yVal);
-
-
-
-
             }
             //sets row labels
             Label xchar = new Label( Character.toString( ascii++ ) );
@@ -103,10 +98,13 @@ public class ChessBoard extends GridPane {
     }
 
     private void disarmLegalMoves(){
-        lastClickedSquare.disarm();
+        if(lastClickedSquare != null){
+            lastClickedSquare.disarm();
+        }
         for ( Square legalMove : legalMoves ) {
             legalMove.disarm();
         }
+
     }
 
 
@@ -142,69 +140,78 @@ public class ChessBoard extends GridPane {
     }
 
     private void onSpaceClick(int x , int y) {
+        //todo fix error when pieces travel through other pieces, pawn logic and castling logic
+
+
         //System.out.println( ( char ) (x + 97) + "" + (y + 1) );
         //System.out.println( "the x value is " + x + "\nthe y value is " + y );
-
-
         //because null this section is skipped until after showAvailableMoves()
-        try {
+
         //    System.out.println( "evento 1" );
-            if ( lastClickedSquare != null &&
-                    lastClickedSquare.getPiece() != null &&
-                    lastClickedSquare != space[x][y] ) {
-               // System.out.println( "evento 3" );
-                //noinspection ConstantConditions (NullPointer imposible)
-                if ( space[x][y].getPiece() == null &&  //if the space is empty
-                        legalMoves.contains(space[x][y]) || //AND legal move
-                        space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
-                                legalMoves.contains(space[x][y])){//AND legal move
+        if ( lastClickedSquare != null &&
+                lastClickedSquare.getPiece() != null &&
+                lastClickedSquare != space[x][y] ) {
+            // System.out.println( "evento 3" );
+            //noinspection ConstantConditions (NullPointer imposible)
+            if ( space[x][y].getPiece() == null &&  //if the space is empty
+                    legalMoves.contains( space[x][y] ) || //AND legal move
+                    space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
+                            legalMoves.contains( space[x][y] ) ) {//AND legal move
 
-                    if(whitesTurn == lastClickedSquare.getPiece().getColour())
-                    {
-                        System.out.println( legalMoves );
-                        legalMoves.clear();
+                if ( whitesTurn == lastClickedSquare.getPiece().getColour() ) {
+                    System.out.println( legalMoves );
+                    legalMoves.clear();
 
-                        turnCounter++;
-                        System.out.println( turnCounter );
-                        space[x][y].setPiece( lastClickedSquare.getPiece() );
-                        lastClickedSquare.removePiece();
-                    }
-
-                    if ( turnCounter % 2 == 0 ){
-                        System.out.println( "whites turn" );
-                        whitesTurn = true;
-                    }else{
-                        System.out.println( "blacks turn" );
-                        whitesTurn = false;
-                    }
-
+                    turnCounter++;
+                    System.out.println( turnCounter );
+                    space[x][y].setPiece( lastClickedSquare.getPiece() );
+                    lastClickedSquare.removePiece();
                 }
+
+                if ( turnCounter % 2 == 0 ) {
+                    System.out.println( "whites turn" );
+                    whitesTurn = true;
+                } else {
+                    System.out.println( "blacks turn" );
+                    whitesTurn = false;
+                }
+
             }
-
-            showAvailableMoves( x , y );// if the space contains a piece
-            lastClickedSquare = space[x][y];//stores last piece click
-
-        }catch ( Exception invalidMove ){
-            System.out.println( "invalid" );
-
         }
+
+        showAvailableMoves( x , y );// if the space contains a piece
+        lastClickedSquare = space[x][y];//stores last piece click
+
 
     }
 
 
     private void showAvailableMoves(int x , int y) {
-       // System.out.println( "evento 2" );
+        // System.out.println( "evento 2" );
         space[x][y].arm();
+        legalMoves.clear();
         int ai = 0;
+        int xVal;
+        int yVal;
+
         if ( space[x][y].getPiece() != null ) {
             MoveList[] moves = space[x][y].getPiece().getPieceMoves();
-            for(int i = 1; i<=space[x][y].getPiece().getRange(); i++){
-                for ( MoveList m : moves  ) {
-                    try {
-                        legalMoves.add( ai , space[x + m.getX() * i][y + m.getY() * i] );       //first index is null, slightly dodgy
-                        legalMoves.get(ai).arm();
+            for ( int i = 1;i <= space[x][y].getPiece().getRange();i++ ) {
+                for ( MoveList m : moves ) {
+
+                    xVal = x + m.getX() * i;
+                    yVal = y + m.getY() * i;
+
+                    if ( yVal >= 0 && yVal < 8 && xVal >= 0 && xVal < 8 )
+
+                    {
+
+                        legalMoves.add( ai , space[xVal][yVal] );       //first index is null, slightly dodgy
+                        legalMoves.get( ai ).arm();
                         ai++;
-                    } catch ( Exception ignored ) {}
+
+                    }
+
                 }
             }
         }
