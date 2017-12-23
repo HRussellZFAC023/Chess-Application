@@ -1,4 +1,5 @@
 package controller;
+import javafx.scene.Node;
 import model.DatabaseConnection;
 import model.game.Games;
 import model.game.GamesService;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 import javafx.stage.WindowEvent;
+
+import static javafx.scene.control.ButtonType.CLOSE;
 
 public class DataController {
 
@@ -60,7 +63,7 @@ public class DataController {
     }
 
     public void openSomething() {
-        boolean local = true;
+        int local = 2;  //0 - not local event; 1- local event; 2 - event cancelled
         String fileLocation;
         ArrayList<String> fileContents = new ArrayList<>();
 
@@ -68,9 +71,11 @@ public class DataController {
         Optional msgResult = dialogueBox("Would you like to open a game from a database or a PGN file",
                 "Local Database","PGN File");
 
-        if ( msgResult.isPresent() && msgResult.get() != option1 ) local = false;
+        if (msgResult.isPresent() && msgResult.get() == option1 && msgResult.get() != CLOSE)  local = 1;
+        else if (msgResult.isPresent() && msgResult.get() != option1 && msgResult.get() != CLOSE) local = 0;
+        System.out.println( msgResult );
 
-        if ( ! local ) {
+        if ( local == 0 ) {
 
             FileDialog dialog = new FileDialog(( Frame ) null,"Select File to Open");
             dialog.setMode(FileDialog.LOAD);
@@ -94,7 +99,7 @@ public class DataController {
             Optional msgResult2 = dialogueBox("Would you like to save the file to the database?",
                     "yes","no");
 
-            if ( msgResult2.isPresent() && msgResult2.get() == option1 ) {
+            if ( msgResult2.isPresent() && msgResult2.get() == option1 && msgResult2.get() != CLOSE ) {
                 boolean foundStart = false;
                 String date = "";
                 String w = "";
@@ -145,12 +150,17 @@ public class DataController {
     }
 
     private Optional dialogueBox (String displayText,String button1,String button2) {
-        option1 = new ButtonType(button1,ButtonBar.ButtonData.YES);
+        option1 = new ButtonType(button1,ButtonBar.ButtonData.NO);
         ButtonType option2 = new ButtonType(button2,ButtonBar.ButtonData.NO);
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,displayText,option1,option2);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,displayText,option1,option2,CLOSE);
+
+        Node closeButton = alert.getDialogPane().lookupButton(CLOSE);
+        closeButton.managedProperty().bind(closeButton.visibleProperty());
+        closeButton.setVisible(false);
 
         return alert.showAndWait();
+
     }
 
     public void saveSomething () {
