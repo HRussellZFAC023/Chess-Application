@@ -13,11 +13,13 @@ import java.util.List;
 public class ChessBoard extends GridPane {
     //Attributes describing chessboards state
     private final Square[][] space = new Square[8][8];
-    private Square lastClickedSquare = null;
-    private int turnCounter = 0;
     private List<Square> legalMoves = new ArrayList<>();
-    private boolean whitesTurn;
+    private Square lastClickedSquare = null;
+    private Square enpassant = null;    //stores the position of enpassant
 
+    private int turnCounter = 0;
+    private boolean whitesTurn;
+    private String moveString;
 
     public ChessBoard(boolean white) {
         boolean light;
@@ -138,31 +140,39 @@ public class ChessBoard extends GridPane {
 
     }
 
-    private void onSpaceClick(int x , int y) {
+    private void onSpaceClick(final int X , final int Y) {
         //todo fix error when pieces travel through other pieces, pawn logic and castling logic
 
-
-        //System.out.println( ( char ) (x + 97) + "" + (y + 1) );
-        //System.out.println( "the x value is " + x + "\nthe y value is " + y );
+        System.out.println( X + "" + Y );
+        //System.out.println( ( char ) (X + 97) + "" + (Y + 1) );
+        //System.out.println( "the X value is " + X + "\nthe Y value is " + Y );
         //because null this section is skipped until after showAvailableMoves()
 
 
         if ( lastClickedSquare != null &&
                 lastClickedSquare.getPiece() != null &&
-                lastClickedSquare != space[x][y] &&
-                legalMoves.contains( space[x][y] ) ) {
+                lastClickedSquare != space[X][Y] &&
+                legalMoves.contains( space[X][Y] ) ) {
+
 
             //noinspection ConstantConditions (NullPointer imposible)
-            if ( space[x][y].getPiece() == null &&  //if the space is empty
-                    legalMoves.contains( space[x][y] ) || //AND legal move
-                    space[x][y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
-                            legalMoves.contains( space[x][y] ) ) {//AND legal move
+            if ( space[X][Y].getPiece() == null &&  //if the space is empty
+                    legalMoves.contains( space[X][Y] ) || //AND legal move
+                    space[X][Y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
+                            legalMoves.contains( space[X][Y] ) ) {//AND legal move
 
                 if ( whitesTurn == lastClickedSquare.getPiece().getColour() ) {
 
-                    turnCounter++;
-                    space[x][y].setPiece( lastClickedSquare.getPiece() );
+                    turnCounter++;//increment turn counter
+                    lastClickedSquare.getPiece().setMoveCounter(lastClickedSquare.getPiece().getMoveCounter()+1);//increment move counter
+                    space[X][Y].setPiece( lastClickedSquare.getPiece() );
+                    System.out.println( moveString );
+                    moveString = space[X][Y].getPiece().getPieceName() + " to " + ( char ) (X + 97) + "" + (Y + 1);
                     lastClickedSquare.removePiece();
+                    if(enpassant != null){
+                        enpassant.removePiece();
+                        enpassant = null;
+                    }
                 }
 
                 if ( turnCounter % 2 == 0 ) {
@@ -176,46 +186,115 @@ public class ChessBoard extends GridPane {
             }
         }
 
-        showAvailableMoves( x , y );// if the space contains a piece
-        lastClickedSquare = space[x][y];//stores last piece click
+        showAvailableMoves( X , Y );// if the space contains a piece
+        lastClickedSquare = space[X][Y];//stores last piece click
 
 
     }
 
 
-    private void showAvailableMoves(int x , int y) {
+    private void showAvailableMoves(final int X , final int Y) {
         legalMoves.clear();
-        space[x][y].armButton();
+        space[X][Y].armButton();
 
         int ai = 0;
         int xVal;
         int yVal;
+        boolean enpassanrLeft = false;
+        boolean enpassanrRight = false;
 
 
-        if ( space[x][y].getPiece() != null ) {
-            MoveList[] moves = space[x][y].getPiece().getPieceMoves();
+        if ( space[X][Y].getPiece() != null ) {
+            MoveList[] moves = space[X][Y].getPiece().getPieceMoves();
+
+            if ( Y == 4 && space[X][Y].getPiece().getColour() && moveString.contains( "Pawn" ) ||
+                    Y == 3 && ! space[X][Y].getPiece().getColour() && moveString.contains( "Pawn" ) ) {
+                if ( indexExists( (X - 1) , (Y) ) &&
+                        space[X - 1][Y].getPiece() != null &&
+                        space[X - 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
+                        space[X - 1][Y].getPiece().getMoveCounter() == 1 &&
+                        moveString.contains( Character.toString( ( char ) (X - 1 + 97) ) ) ) {
+                    enpassanrLeft = true;
+                    enpassant = space[X - 1][Y];
+
+                }
+                if ( indexExists( (X + 1) , (Y) ) &&
+                        space[X + 1][Y].getPiece() != null &&
+                        space[X + 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
+                        space[X + 1][Y].getPiece().getMoveCounter() == 1 &&
+                        moveString.contains( Character.toString( ( char ) (X + 1 + 97) ) ) ) {
+                    enpassanrRight = true;
+                    enpassant = space[X + 1][Y];
+                }
+
+            }
+
             for ( MoveList m : moves ) {
-                for ( int i = 1;i <= space[x][y].getPiece().getRange();i++ ) {
+                for ( int i = 1;i <= space[X][Y].getPiece().getRange();i++ ) {
 
 
-                    xVal = x + m.getX() * i;
-                    yVal = y + m.getY() * i;
+                    xVal = X + m.getX() * i;
+                    yVal = Y + m.getY() * i;
 
-                    if(space[x][y].getPiece().getPieceName().equals("Pawn") && ! space[x][y].getPiece().getColour() ){
-                        xVal = x + (-m.getX()) * i;
-                        yVal = y + (-m.getY()) * i;
+                    if ( space[X][Y].getPiece().getPieceName().equals( "Pawn" ) ) {
+                        if ( ! space[X][Y].getPiece().getColour() ) {
+                            xVal = X + (- m.getX()) * i;
+                            yVal = Y + (- m.getY()) * i;
+                        }
+                        if ( space[X][Y].getPiece().getMoveCounter() != 0 ) {
+                            //allow jump two space only first move
+                            if ( m == MoveList.DOUBLE_UP ) {
+                                break;
+                            }
+                        }
+
+                        if ( indexExists( (X + 1) , (Y + 1) ) && space[X + 1][Y + 1].getPiece() == null &&
+                                space[X][Y].getPiece().getColour() ||
+                                indexExists( (X - 1) , (Y - 1) ) && space[X - 1][Y - 1].getPiece() == null &&
+                                        ! space[X][Y].getPiece().getColour() ) {
+                            //allow diagonal capture
+                            if ( m == MoveList.UP_RIGHT && ! enpassanrRight ) {
+                                break;
+                            }
+                        }
+                        if ( indexExists( (X - 1) , (Y + 1) ) && space[X - 1][Y + 1].getPiece() == null &&
+                                space[X][Y].getPiece().getColour() ||
+                                indexExists( (X + 1) , (Y - 1) ) && space[X + 1][Y - 1].getPiece() == null &&
+                                        ! space[X][Y].getPiece().getColour() ) {
+                            //allow diagonal capture
+                            if ( m == MoveList.UP_LEFT && ! enpassanrLeft ) {
+                                break;
+                            }
+                        }
+
+
                     }
+                    if ( space[X][Y].getPiece().getPieceName().equals( "King" ) &&
+                            space[X][Y].getPiece().getMoveCounter() == 0) {
+                        //Queen-side castling
+                        if(space[0][0].getPiece().getMoveCounter() == 0 ||
+                                space[0][7].getPiece().getMoveCounter() == 0){
+
+                        }
+
+                        //king-side castling
+                        if(space[7][0].getPiece().getMoveCounter() == 0 ||
+                                space[7][7].getPiece().getMoveCounter() == 0){
+
+                        }
+
+                    }
+
 
                     if ( yVal >= 0 && yVal < 8 && xVal >= 0 && xVal < 8 )//if square exists on board
                     {
 
                         if ( space[xVal][yVal].getPiece() == null ||
-                                space[xVal][yVal].getPiece().getColour() != space[x][y].getPiece().getColour())
-                        {
+                                space[xVal][yVal].getPiece().getColour() != space[X][Y].getPiece().getColour() ) {
                             legalMoves.add( ai , space[xVal][yVal] );
                             legalMoves.get( ai ).armButton();
                             ai++;
-                            if(space[xVal][yVal].getPiece() != null) break;
+                            if ( space[xVal][yVal].getPiece() != null ) break; //stops black collision
                         } else {
                             //stops checking this move if pieces are the same color
                             break;
@@ -228,11 +307,14 @@ public class ChessBoard extends GridPane {
         }
     }
 
+    private boolean indexExists(final int X , final int Y) {
+        return (X >= 0 && X < 8) && (Y >= 0 && Y < 8);
+    }
+
 
     public void setSize(double size) {
         this.setMinSize( size , size );
         this.setMaxSize( size , size );
         this.setPrefSize( size , size );
     }
-
 }
