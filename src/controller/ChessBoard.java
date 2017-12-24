@@ -1,6 +1,9 @@
 package controller;
 
 import controller.pieces.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
@@ -143,7 +146,6 @@ public class ChessBoard extends GridPane {
     private void onSpaceClick(final int X , final int Y) {
         //todo fix error when pieces travel through other pieces, pawn logic and castling logic
 
-        System.out.println( X + "" + Y );
         //System.out.println( ( char ) (X + 97) + "" + (Y + 1) );
         //System.out.println( "the X value is " + X + "\nthe Y value is " + Y );
         //because null this section is skipped until after showAvailableMoves()
@@ -165,22 +167,35 @@ public class ChessBoard extends GridPane {
 
                     turnCounter++;//increment turn counter
                     lastClickedSquare.getPiece().setMoveCounter(lastClickedSquare.getPiece().getMoveCounter()+1);//increment move counter
+
+
                     space[X][Y].setPiece( lastClickedSquare.getPiece() );
-                    System.out.println( moveString );
+
+
                     moveString = space[X][Y].getPiece().getPieceName() + " to " + ( char ) (X + 97) + "" + (Y + 1);
+                    System.out.println( moveString );
                     lastClickedSquare.removePiece();
+
                     if(enpassant != null){
                         enpassant.removePiece();
                         enpassant = null;
                     }
-                }
 
-                if ( turnCounter % 2 == 0 ) {
-                    System.out.println( "whites turn" );
-                    whitesTurn = true;
-                } else {
-                    System.out.println( "blacks turn" );
-                    whitesTurn = false;
+                    if(space[X][Y].getPiece().getPieceName().equals("Pawn") &&
+                            (Y == 7 && space[X][Y].getPiece().getColour()) ||
+                            (Y == 0 &&!space[X][Y].getPiece().getColour()))
+                    {
+                        space[X][Y].setPiece(choosePiece(space[X][Y].getPiece().getColour()));
+                    }
+
+                    if ( turnCounter % 2 == 0 ) {
+                        System.out.println( "whites turn" );
+                        whitesTurn = true;
+                    } else {
+                        System.out.println( "blacks turn" );
+                        whitesTurn = false;
+                    }
+
                 }
 
             }
@@ -192,6 +207,20 @@ public class ChessBoard extends GridPane {
 
     }
 
+    private Piece choosePiece(boolean colour) {
+        ButtonType option1 = new ButtonType("♕", ButtonBar.ButtonData.OTHER);
+        ButtonType option2 = new ButtonType("♖",ButtonBar.ButtonData.OTHER);
+        ButtonType option3 = new ButtonType("♗",ButtonBar.ButtonData.OTHER);
+        ButtonType option4 = new ButtonType("♘",ButtonBar.ButtonData.OTHER);
+
+        Alert alert = new Alert(Alert.AlertType.NONE,"Promotion:" ,option1,option2,option3,option4);
+        alert.showAndWait();
+        if (alert.getResult() == option2) return new Rook( colour );
+        else if (alert.getResult() == option3) return new Bishop( colour );
+        else if (alert.getResult() == option4) return new Knight( colour );
+        else return new Queen( true );
+    }
+
 
     private void showAvailableMoves(final int X , final int Y) {
         legalMoves.clear();
@@ -200,8 +229,8 @@ public class ChessBoard extends GridPane {
         int ai = 0;
         int xVal;
         int yVal;
-        boolean enpassanrLeft = false;
-        boolean enpassanrRight = false;
+        boolean enpassantLeft = false;
+        boolean enpassantRight = false;
 
 
         if ( space[X][Y].getPiece() != null ) {
@@ -214,7 +243,8 @@ public class ChessBoard extends GridPane {
                         space[X - 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
                         space[X - 1][Y].getPiece().getMoveCounter() == 1 &&
                         moveString.contains( Character.toString( ( char ) (X - 1 + 97) ) ) ) {
-                    enpassanrLeft = true;
+                    if(space[X][Y].getPiece().getColour())enpassantLeft = true;
+                        else enpassantRight = true;
                     enpassant = space[X - 1][Y];
 
                 }
@@ -223,7 +253,8 @@ public class ChessBoard extends GridPane {
                         space[X + 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
                         space[X + 1][Y].getPiece().getMoveCounter() == 1 &&
                         moveString.contains( Character.toString( ( char ) (X + 1 + 97) ) ) ) {
-                    enpassanrRight = true;
+                    if(space[X][Y].getPiece().getColour())enpassantRight = true;
+                        else enpassantLeft = true;
                     enpassant = space[X + 1][Y];
                 }
 
@@ -253,7 +284,7 @@ public class ChessBoard extends GridPane {
                                 indexExists( (X - 1) , (Y - 1) ) && space[X - 1][Y - 1].getPiece() == null &&
                                         ! space[X][Y].getPiece().getColour() ) {
                             //allow diagonal capture
-                            if ( m == MoveList.UP_RIGHT && ! enpassanrRight ) {
+                            if ( m == MoveList.UP_RIGHT && ! enpassantRight ) {
                                 break;
                             }
                         }
@@ -262,7 +293,7 @@ public class ChessBoard extends GridPane {
                                 indexExists( (X + 1) , (Y - 1) ) && space[X + 1][Y - 1].getPiece() == null &&
                                         ! space[X][Y].getPiece().getColour() ) {
                             //allow diagonal capture
-                            if ( m == MoveList.UP_LEFT && ! enpassanrLeft ) {
+                            if ( m == MoveList.UP_LEFT && ! enpassantLeft ) {
                                 break;
                             }
                         }
