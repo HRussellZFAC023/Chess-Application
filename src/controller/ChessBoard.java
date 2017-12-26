@@ -6,7 +6,10 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.input.*;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class ChessBoard extends GridPane {
 
                 final int xVal = (x - 1);
                 final int yVal = y;
+
                 space[xVal][y] = new Square( light , x , y );
 
                 if ( white ) {
@@ -144,8 +148,6 @@ public class ChessBoard extends GridPane {
     }
 
     private void onSpaceClick(final int X , final int Y) {
-        //todo fix error when pieces travel through other pieces, pawn logic and castling logic
-
         //System.out.println( ( char ) (X + 97) + "" + (Y + 1) );
         //System.out.println( "the X value is " + X + "\nthe Y value is " + Y );
         //because null this section is skipped until after showAvailableMoves()
@@ -191,12 +193,12 @@ public class ChessBoard extends GridPane {
                             space[X][Y].getPiece().getMoveCounter() == 1)
                     {
                         if ( X == 6 ) {
+                            space[X - 1][Y].setPiece( space[X + 1][Y].getPiece() );
                             space[X+1][Y].removePiece();
-                            space[X-1][Y].setPiece(new Rook(space[X][Y].getPiece().getColour() ));
                         }
                         if ( X == 2 ) {
+                            space[X + 1][Y].setPiece( space[X - 2][Y].getPiece() );
                             space[X-2][Y].removePiece();
-                            space[X+1][Y].setPiece(new Rook(space[X][Y].getPiece().getColour() ));
                         }
 
 
