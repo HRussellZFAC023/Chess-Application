@@ -46,8 +46,6 @@ public class MovesService {
 
     public static void selectForTable(List<MoveView> targetList , DatabaseConnection database) {
         ArrayList<String> moves = new ArrayList<>();
-        String blackMove = "";
-        String whiteMove = "";
 
         PreparedStatement statement = database.newStatement(
                 "SELECT * From Move"
@@ -63,13 +61,14 @@ public class MovesService {
                         moves.add( results.getString( "move" ) );
                     }
                 }
-                for ( int i = 0;i < moves.size();i++ ) {
-                    System.out.println( moves );
-                    if ( i % 2 == 0 ) whiteMove = moves.get( i );
-                    else {
-                        blackMove = moves.get( i );
-                        targetList.add( new MoveView( whiteMove , blackMove ) );
+                for ( int i = 0;i < moves.size();i = i + 2 ) {
+                    try {
+                        targetList.add( new MoveView( moves.get( i ) , moves.get( i + 1 ) ) );
+                    } catch ( Exception e ) {
+                        targetList.add( new MoveView( moves.get( i ) , "" ) );
                     }
+
+
                 }
             }
         } catch ( SQLException resultsException ) {
