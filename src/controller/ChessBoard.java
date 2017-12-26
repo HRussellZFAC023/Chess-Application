@@ -187,6 +187,22 @@ public class ChessBoard extends GridPane {
                     {
                         space[X][Y].setPiece(choosePiece(space[X][Y].getPiece().getColour()));
                     }
+                    if(space[X][Y].getPiece().getPieceName().equals("King") &&
+                            space[X][Y].getPiece().getMoveCounter() == 1)
+                    {
+                        if ( X == 6 ) {
+                            space[X+1][Y].removePiece();
+                            space[X-1][Y].setPiece(new Rook(space[X][Y].getPiece().getColour() ));
+                        }
+                        if ( X == 2 ) {
+                            space[X-2][Y].removePiece();
+                            space[X+1][Y].setPiece(new Rook(space[X][Y].getPiece().getColour() ));
+                        }
+
+
+                        System.out.println( "you castled" );
+                    }
+
 
                     if ( turnCounter % 2 == 0 ) {
                         System.out.println( "whites turn" );
@@ -236,6 +252,51 @@ public class ChessBoard extends GridPane {
         if ( space[X][Y].getPiece() != null ) {
             MoveList[] moves = space[X][Y].getPiece().getPieceMoves();
 
+            if ( space[X][Y].getPiece().getPieceName().equals( "King" ) &&
+                    space[X][Y].getPiece().getMoveCounter() == 0) {
+                //Queen-side castling
+                if ( space[0][0].getPiece() != null &&
+                        space[0][0].getPiece().getMoveCounter() == 0 ||
+                        space[0][7].getPiece().getMoveCounter() == 0 ) {
+                    if ( space[X][Y].getPiece().getColour() &&
+                            space[1][0].getPiece() == null &&
+                            space[2][0].getPiece() == null &&
+                            space[3][0].getPiece() == null ) {
+                        legalMoves.add( space[2][0] );
+                        space[2][0].armButton();
+                    }
+                    else if ( !space[X][Y].getPiece().getColour()  &&
+                            space[1][7].getPiece() == null &&
+                            space[2][7].getPiece() == null &&
+                            space[3][7].getPiece() == null ) {
+                        legalMoves.add( space[2][7] );
+                        space[2][7].armButton();
+                    }
+                }
+
+                //king-side castling
+                if ( space[7][0].getPiece() != null &&
+                        space[7][0].getPiece().getMoveCounter() == 0 ||
+                        space[7][7].getPiece().getMoveCounter() == 0 ) {
+                    if ( space[X][Y].getPiece().getColour() &&
+                            space[5][0].getPiece() == null &&
+                            space[6][0].getPiece() == null)
+                    {
+                        legalMoves.add( space[6][0] );
+                        space[6][0].armButton();
+                    }
+                    else if ( !space[X][Y].getPiece().getColour()  &&
+                            space[5][7].getPiece() == null &&
+                            space[6][7].getPiece() == null) {
+                        legalMoves.add( space[6][7] );
+                        space[6][7].armButton();
+                    }
+                }
+
+            }
+
+
+
             if ( Y == 4 && space[X][Y].getPiece().getColour() && moveString.contains( "Pawn" ) ||
                     Y == 3 && ! space[X][Y].getPiece().getColour() && moveString.contains( "Pawn" ) ) {
                 if ( indexExists( (X - 1) , (Y) ) &&
@@ -243,8 +304,8 @@ public class ChessBoard extends GridPane {
                         space[X - 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
                         space[X - 1][Y].getPiece().getMoveCounter() == 1 &&
                         moveString.contains( Character.toString( ( char ) (X - 1 + 97) ) ) ) {
-                    if(space[X][Y].getPiece().getColour())enpassantLeft = true;
-                        else enpassantRight = true;
+                    if ( space[X][Y].getPiece().getColour() ) enpassantLeft = true;
+                    else enpassantRight = true;
                     enpassant = space[X - 1][Y];
 
                 }
@@ -253,8 +314,8 @@ public class ChessBoard extends GridPane {
                         space[X + 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
                         space[X + 1][Y].getPiece().getMoveCounter() == 1 &&
                         moveString.contains( Character.toString( ( char ) (X + 1 + 97) ) ) ) {
-                    if(space[X][Y].getPiece().getColour())enpassantRight = true;
-                        else enpassantLeft = true;
+                    if ( space[X][Y].getPiece().getColour() ) enpassantRight = true;
+                    else enpassantLeft = true;
                     enpassant = space[X + 1][Y];
                 }
 
@@ -300,22 +361,6 @@ public class ChessBoard extends GridPane {
 
 
                     }
-                    if ( space[X][Y].getPiece().getPieceName().equals( "King" ) &&
-                            space[X][Y].getPiece().getMoveCounter() == 0) {
-                        //Queen-side castling
-                        if(space[0][0].getPiece().getMoveCounter() == 0 ||
-                                space[0][7].getPiece().getMoveCounter() == 0){
-
-                        }
-
-                        //king-side castling
-                        if(space[7][0].getPiece().getMoveCounter() == 0 ||
-                                space[7][7].getPiece().getMoveCounter() == 0){
-
-                        }
-
-                    }
-
 
                     if ( yVal >= 0 && yVal < 8 && xVal >= 0 && xVal < 8 )//if square exists on board
                     {
