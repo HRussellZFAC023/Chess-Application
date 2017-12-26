@@ -2,13 +2,7 @@ package view;
 
 import controller.ChessBoard;
 import controller.DataController;
-import javafx.beans.value.ChangeListener;
-import javafx.geometry.HPos;
-import javafx.geometry.VPos;
-import model.MoveView;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,8 +12,11 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.MoveView;
 
 
 /*
@@ -29,10 +26,12 @@ TODO output the game to GUI
 public class Main extends Application {
 
     private static DataController controller;
+    private static TableView<MoveView> tableView = new TableView<>();
+
 
     public static void main(String[] args) {
 
-        controller = new DataController();
+        controller = new DataController( tableView );
         launch(args);
 
     }
@@ -67,31 +66,25 @@ public class Main extends Application {
         MenuItem tournamentItem2 = new MenuItem("Load Tournaments");
         tournamentMenu.getItems().addAll(tournamentItem1,tournamentItem2);
 
-        Menu trainingMenu = new Menu("Training");
-        MenuItem trainingItem1 = new MenuItem("New puzzle");
-        MenuItem trainingItem2 = new MenuItem("Create puzzle");
-        trainingMenu.getItems().addAll(trainingItem1,trainingItem2);
-
         Menu aboutMenu = new Menu("About");
         MenuItem aboutItem1 = new MenuItem("Rules of chess");
         MenuItem aboutItem2 = new MenuItem("Credits");
         aboutMenu.getItems().addAll(aboutItem1,aboutItem2);
 
          /*TODO Add functionality to menu clicks*/
-        newGameButton.setOnAction(e -> controller.doSomething());
+        newGameButton.setOnAction(
+                e -> controller.doSomething() ); //Resets Chessboard after asking if user would like to save
         saveButton.setOnAction(e -> controller.saveSomething());
         openButton.setOnAction(e -> controller.openSomething());
         setupButton.setOnAction(e -> controller.doSomething());
         tournamentItem1.setOnAction(e -> controller.doSomething());
         tournamentItem2.setOnAction(e -> controller.doSomething());
-        trainingItem1.setOnAction(e -> controller.doSomething());
-        trainingItem2.setOnAction(e -> controller.doSomething());
         aboutItem1.setOnAction(e -> controller.doSomething());
         aboutItem2.setOnAction(e -> controller.doSomething());
         quitButton.setOnAction(e -> controller.exitPrompt());
         quitButton.setAccelerator(new KeyCodeCombination(KeyCode.Q,KeyCombination.CONTROL_DOWN));
 
-        myMenu.getMenus().addAll(gameMenu,trainingMenu,aboutMenu);
+        myMenu.getMenus().addAll( gameMenu , tournamentMenu , aboutMenu );
         root.getChildren().add(myMenu);
 
         BorderPane borderPane = new BorderPane();
@@ -106,38 +99,32 @@ public class Main extends Application {
         borderPane.setCenter(chessBoard);
 
         VBox rightPane = new VBox();
-        ObservableList<MoveView> moveViews = FXCollections.observableArrayList(
-                new MoveView("e4","e5"),
-                new MoveView("♘Nf3","d4")
-        );
-        TableView table = new TableView<>();
-        table.setItems(moveViews);
-        TableColumn whiteMoves = new TableColumn<>("White");
-        whiteMoves.setCellValueFactory(new PropertyValueFactory<>("White"));
-        table.getColumns().add(whiteMoves);
+
+        TableColumn<MoveView, String> whiteMoves = new TableColumn<>( "White" );
+        whiteMoves.setCellValueFactory( new PropertyValueFactory<>( "white" ) );
         whiteMoves.setSortable(false);
-        TableColumn blackMoves = new TableColumn<>("Black");
-        blackMoves.setCellValueFactory(new PropertyValueFactory<>("Black"));
-        table.getColumns().add(blackMoves);
+        tableView.getColumns().add( whiteMoves );
+
+        TableColumn<MoveView, String> blackMoves = new TableColumn<>( "Black" );
+        blackMoves.setCellValueFactory( new PropertyValueFactory<>( "black" ) );
         blackMoves.setSortable(false);
-        table.setSelectionModel(null);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableView.getColumns().add( blackMoves );
+        tableView.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
 
         HBox buttonPane = new HBox();
         buttonPane.setAlignment(Pos.BASELINE_CENTER);
         buttonPane.setPadding(new Insets(10));
         buttonPane.setSpacing(10);
         Button undoButton = new Button("Undo");
-        Button redoButton = new Button("Redo");
+        Button Result = new Button( "Result" );
         undoButton.getStyleClass().add("buttonx");
-        redoButton.getStyleClass().add("buttonx");
-        buttonPane.getChildren().addAll(undoButton,redoButton);
-        rightPane.getChildren().addAll(table,buttonPane);
+        Result.getStyleClass().add( "buttonx" );
+        buttonPane.getChildren().addAll( undoButton , Result );
+        rightPane.getChildren().addAll( tableView , buttonPane );
         borderPane.setRight(rightPane);
         BorderPane.setAlignment(rightPane,Pos.CENTER);
 
     }
-
 
 
 }

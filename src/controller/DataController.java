@@ -1,19 +1,27 @@
 package controller;
+
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
-import model.DatabaseConnection;
-import model.game.Games;
-import model.game.GamesService;
-import model.tournament.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableView;
+import javafx.stage.WindowEvent;
+import model.DatabaseConnection;
+import model.MoveView;
+import model.game.Games;
+import model.game.GamesService;
+import model.game.Moves;
+import model.game.MovesService;
+import model.tournament.*;
+
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import javafx.stage.WindowEvent;
 
 import static javafx.scene.control.ButtonType.CLOSE;
 
@@ -22,12 +30,25 @@ public class DataController {
     private final DatabaseConnection tournamentDatabase;
     private final DatabaseConnection gameDatabase;
     private ButtonType option1;
+    private TableView<MoveView> tableView;
+    private List<MoveView> allMoves = new ArrayList<>();
 
-    public DataController () {
+    public DataController(TableView<MoveView> tableView) {
+
         System.out.println("Initialising main controller...");
-        tournamentDatabase = new DatabaseConnection("src\\Assets\\Moves_Database.db");
-        gameDatabase = new DatabaseConnection("src\\Assets\\Tournament_Database.db");
+        tournamentDatabase = new DatabaseConnection( "src\\Assets\\Tournament_Database.db" );
+        gameDatabase = new DatabaseConnection( "src\\Assets\\Moves_Database.db" );
+
+        this.tableView = tableView;
+        updateTable();
     }
+
+    public void updateTable() {
+        allMoves.clear();
+        MovesService.selectForTable( allMoves , gameDatabase );
+        tableView.setItems( FXCollections.observableList( allMoves ) );
+    }
+
 
     public void testDb () {
         ArrayList<Enrollments> testList = new ArrayList<>();
@@ -35,6 +56,8 @@ public class DataController {
         ArrayList<Players> testList3 = new ArrayList<>();
         ArrayList<Tournaments> testList4 = new ArrayList<>();
         ArrayList<Games> testList5 = new ArrayList<>();
+        ArrayList<Moves> testList6 = new ArrayList<>();
+
         EnrollmentsService.selectAll(testList,tournamentDatabase);
         PairingsService.selectAll(testList2,tournamentDatabase);
         PlayersService.selectAll(testList3,tournamentDatabase);
@@ -59,6 +82,7 @@ public class DataController {
         //how to save temp
         Games game = new Games(0,"28/11/99","hello","world");
         GamesService.save(game,gameDatabase);
+
 
     }
 

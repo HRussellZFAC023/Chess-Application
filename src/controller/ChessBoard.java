@@ -11,6 +11,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
+import model.MoveView;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class ChessBoard extends GridPane {
     private List<Square> legalMoves = new ArrayList<>();
     private Square lastClickedSquare = null;
     private Square enpassant = null;    //stores the position of enpassant
+    private MoveView moves;
 
     private int turnCounter = 0;
     private boolean whitesTurn;
@@ -32,6 +34,7 @@ public class ChessBoard extends GridPane {
         boolean light;
         char ascii = 65;
         whitesTurn = white;
+
 
         for ( int x = 1;x <= 8;x++ ) {
             for ( int y = 0;y < 8;y++ ) {
@@ -63,7 +66,6 @@ public class ChessBoard extends GridPane {
 
         }
         defineStartPositions();
-
     }
 
     private void setActionEvents(int x , int y) {
@@ -241,7 +243,7 @@ public class ChessBoard extends GridPane {
 
     }
 
-    private void recordMove(boolean capture , boolean castledKingside , boolean castledQueenside , String moveString , String captureMoveString) {
+    private void recordMove(final boolean capture , final boolean castledKingside , final boolean castledQueenside , final String moveString , final String captureMoveString) {
         String reformattedMove = letter( moveString );
 
 
@@ -254,12 +256,12 @@ public class ChessBoard extends GridPane {
         if ( castledQueenside ) {
             reformattedMove = "O-O-O";
         }
-
-        System.out.println( reformattedMove );
+        if ( whitesTurn ) moves.setWhite( reformattedMove );
+        else moves.setBlack( reformattedMove );
     }
 
     @NotNull
-    private String letter(String moveString) {
+    private String letter(final String moveString) {
         //returns letter + co-ordinates
         if ( ! moveString.substring( 0 , 1 ).equals( "P" ) && ! moveString.substring( 0 , 1 ).equals( "K" ) ) {
             return moveString.substring( 0 , 1 ) + "" + moveString.substring( moveString.length() - 2 );
@@ -271,7 +273,7 @@ public class ChessBoard extends GridPane {
     }
 
     @NotNull
-    private Piece choosePiece(boolean colour) {
+    private Piece choosePiece(final boolean colour) {
         ButtonType option1 = new ButtonType("♕", ButtonBar.ButtonData.OTHER);
         ButtonType option2 = new ButtonType("♖",ButtonBar.ButtonData.OTHER);
         ButtonType option3 = new ButtonType("♗",ButtonBar.ButtonData.OTHER);
@@ -435,10 +437,9 @@ public class ChessBoard extends GridPane {
         return (X >= 0 && X < 8) && (Y >= 0 && Y < 8);
     }
 
-
-    public void setSize(double size) {
-        this.setMinSize( size , size );
-        this.setMaxSize( size , size );
-        this.setPrefSize( size , size );
+    public void setSize(final double width) {
+        this.setMinSize( width , width );
+        this.setMaxSize( width , width );
+        this.setPrefSize( width , width );
     }
 }

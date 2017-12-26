@@ -36,7 +36,6 @@
 .table-view{
     -fx-text-alignment: center;
     -fx-font-style: italic;
-    -fx-pref-columns: 2;
     -fx-pref-height: 1000px;
     -fx-pref-width: 200px;
     -fx-base: #1d1d1d;
