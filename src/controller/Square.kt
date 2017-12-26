@@ -4,7 +4,7 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import view.WrappedImageView
 
-open class Square(private var light: Boolean , private var x: Int , private var y: Int) : Button() {
+open class Square(private var light: Boolean , protected var x: Int , protected var y: Int) : Button() {
 
     private var img: Image? = null
     private var imageView: ImageView? = null

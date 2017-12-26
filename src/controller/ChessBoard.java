@@ -11,6 +11,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,6 +153,11 @@ public class ChessBoard extends GridPane {
         //System.out.println( "the X value is " + X + "\nthe Y value is " + Y );
         //because null this section is skipped until after showAvailableMoves()
 
+        boolean capture = false;
+        boolean castledKingside = false;
+        boolean castledQueensise = false;
+        String captureMoveString = "";
+
 
         if ( lastClickedSquare != null &&
                 lastClickedSquare.getPiece() != null &&
@@ -159,7 +165,6 @@ public class ChessBoard extends GridPane {
                 legalMoves.contains( space[X][Y] ) ) {
 
 
-            //noinspection ConstantConditions (NullPointer imposible)
             if ( space[X][Y].getPiece() == null &&  //if the space is empty
                     legalMoves.contains( space[X][Y] ) || //AND legal move
                     space[X][Y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
@@ -170,18 +175,29 @@ public class ChessBoard extends GridPane {
                     turnCounter++;//increment turn counter
                     lastClickedSquare.getPiece().setMoveCounter(lastClickedSquare.getPiece().getMoveCounter()+1);//increment move counter
 
+                    if ( space[X][Y].getPiece() != null ) {
+                        capture = true;
+                        captureMoveString =
+                                lastClickedSquare.getPiece().getPieceName() +
+                                        ( char ) (lastClickedSquare.getX() + 96) +
+                                        (lastClickedSquare.getY() + 1);
 
+                    }
+                    if ( enpassant != null ) {
+                        enpassant.removePiece();
+                        enpassant = null;
+                        capture = true;
+                        captureMoveString =
+                                lastClickedSquare.getPiece().getPieceName() +
+                                        ( char ) (lastClickedSquare.getX() + 96) +
+                                        (lastClickedSquare.getY() + 1);
+                    }
                     space[X][Y].setPiece( lastClickedSquare.getPiece() );
 
 
                     moveString = space[X][Y].getPiece().getPieceName() + " to " + ( char ) (X + 97) + "" + (Y + 1);
-                    System.out.println( moveString );
-                    lastClickedSquare.removePiece();
 
-                    if(enpassant != null){
-                        enpassant.removePiece();
-                        enpassant = null;
-                    }
+                    lastClickedSquare.removePiece();
 
                     if(space[X][Y].getPiece().getPieceName().equals("Pawn") &&
                             (Y == 7 && space[X][Y].getPiece().getColour()) ||
@@ -189,20 +205,20 @@ public class ChessBoard extends GridPane {
                     {
                         space[X][Y].setPiece(choosePiece(space[X][Y].getPiece().getColour()));
                     }
+
                     if(space[X][Y].getPiece().getPieceName().equals("King") &&
                             space[X][Y].getPiece().getMoveCounter() == 1)
                     {
                         if ( X == 6 ) {
                             space[X - 1][Y].setPiece( space[X + 1][Y].getPiece() );
                             space[X+1][Y].removePiece();
+                            castledKingside = true;
                         }
                         if ( X == 2 ) {
                             space[X + 1][Y].setPiece( space[X - 2][Y].getPiece() );
                             space[X-2][Y].removePiece();
+                            castledQueensise = true;
                         }
-
-
-                        System.out.println( "you castled" );
                     }
 
 
@@ -213,7 +229,7 @@ public class ChessBoard extends GridPane {
                         System.out.println( "blacks turn" );
                         whitesTurn = false;
                     }
-
+                    recordMove( capture , castledKingside , castledQueensise , moveString , captureMoveString );
                 }
 
             }
@@ -225,6 +241,36 @@ public class ChessBoard extends GridPane {
 
     }
 
+    private void recordMove(boolean capture , boolean castledKingside , boolean castledQueenside , String moveString , String captureMoveString) {
+        String reformattedMove = letter( moveString );
+
+
+        if ( capture ) {
+            reformattedMove = letter( captureMoveString ) + "x" + moveString.substring( moveString.length() - 2 );
+        }
+        if ( castledKingside ) {
+            reformattedMove = "O-O";
+        }
+        if ( castledQueenside ) {
+            reformattedMove = "O-O-O";
+        }
+
+        System.out.println( reformattedMove );
+    }
+
+    @NotNull
+    private String letter(String moveString) {
+        //returns letter + co-ordinates
+        if ( ! moveString.substring( 0 , 1 ).equals( "P" ) && ! moveString.substring( 0 , 1 ).equals( "K" ) ) {
+            return moveString.substring( 0 , 1 ) + "" + moveString.substring( moveString.length() - 2 );
+        } else if ( moveString.substring( 0 , 1 ).equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Kn" ) ) {
+            return "N" + "" + moveString.substring( moveString.length() - 2 );
+        } else if ( moveString.substring( 0 , 1 ).equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Ki" ) ) {
+            return "K" + "" + moveString.substring( moveString.length() - 2 );
+        } else return moveString.substring( moveString.length() - 2 );
+    }
+
+    @NotNull
     private Piece choosePiece(boolean colour) {
         ButtonType option1 = new ButtonType("♕", ButtonBar.ButtonData.OTHER);
         ButtonType option2 = new ButtonType("♖",ButtonBar.ButtonData.OTHER);
@@ -297,8 +343,6 @@ public class ChessBoard extends GridPane {
 
             }
 
-
-
             if ( Y == 4 && space[X][Y].getPiece().getColour() && moveString.contains( "Pawn" ) ||
                     Y == 3 && ! space[X][Y].getPiece().getColour() && moveString.contains( "Pawn" ) ) {
                 if ( indexExists( (X - 1) , (Y) ) &&
@@ -369,10 +413,12 @@ public class ChessBoard extends GridPane {
 
                         if ( space[xVal][yVal].getPiece() == null ||
                                 space[xVal][yVal].getPiece().getColour() != space[X][Y].getPiece().getColour() ) {
+                            if ( space[X][Y].getPiece().getPieceName().equals( "Pawn" ) && m == MoveList.UP &&
+                                    space[xVal][yVal].getPiece() != null ) break;
                             legalMoves.add( ai , space[xVal][yVal] );
                             legalMoves.get( ai ).armButton();
                             ai++;
-                            if ( space[xVal][yVal].getPiece() != null ) break; //stops black collision
+                            if ( space[xVal][yVal].getPiece() != null ) break; //stops collision after one capture
                         } else {
                             //stops checking this move if pieces are the same color
                             break;
