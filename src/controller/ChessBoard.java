@@ -20,6 +20,7 @@ import java.util.List;
 
 public class ChessBoard extends GridPane {
     //Attributes describing chessboards state
+    private DataController controller;
     private final Square[][] space = new Square[8][8];
     private List<Square> legalMoves = new ArrayList<>();
     private Square lastClickedSquare = null;
@@ -30,11 +31,11 @@ public class ChessBoard extends GridPane {
     private boolean whitesTurn;
     private String moveString;
 
-    public ChessBoard(boolean white) {
+    public ChessBoard(boolean white , DataController controller) {
         boolean light;
         char ascii = 65;
         whitesTurn = white;
-
+        this.controller = controller;
 
         for ( int x = 1;x <= 8;x++ ) {
             for ( int y = 0;y < 8;y++ ) {
@@ -256,8 +257,7 @@ public class ChessBoard extends GridPane {
         if ( castledQueenside ) {
             reformattedMove = "O-O-O";
         }
-        if ( whitesTurn ) moves.setWhite( reformattedMove );
-        else moves.setBlack( reformattedMove );
+        controller.updateTable( reformattedMove );
     }
 
     @NotNull

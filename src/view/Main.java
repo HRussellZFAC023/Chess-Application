@@ -62,7 +62,7 @@ public class Main extends Application {
         gameMenu.getItems().addAll(newGameButton,saveButton,openButton,setupButton,quitButton);
 
         Menu tournamentMenu = new Menu("Tournaments");
-        MenuItem tournamentItem1 = new MenuItem("Generate Tournaments");
+        MenuItem tournamentItem1 = new MenuItem( "Generate Tournament" );
         MenuItem tournamentItem2 = new MenuItem("Load Tournaments");
         tournamentMenu.getItems().addAll(tournamentItem1,tournamentItem2);
 
@@ -92,7 +92,7 @@ public class Main extends Application {
         root.getChildren().add(borderPane);
         borderPane.setPadding(new Insets(40));
 
-        ChessBoard chessBoard = new ChessBoard(true);
+        ChessBoard chessBoard = new ChessBoard( true , controller );
         chessBoard.setAlignment(Pos.CENTER);
         chessBoard.setSize(stage.getHeight() -200);
         stage.heightProperty().addListener((obs, oldVal, newVal) -> chessBoard.setSize(stage.getHeight()-200));     //dynamically re-sises chessboard

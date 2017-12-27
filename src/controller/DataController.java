@@ -19,6 +19,8 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,14 +40,48 @@ public class DataController {
         System.out.println("Initialising main controller...");
         tournamentDatabase = new DatabaseConnection( "src\\Assets\\Tournament_Database.db" );
         gameDatabase = new DatabaseConnection( "src\\Assets\\Moves_Database.db" );
-
         this.tableView = tableView;
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern( "yyyy/MM/dd" );
+        LocalDate localDate = LocalDate.now();
+
+        Games game = new Games( 0 , dtf.format( localDate ) , "Unknown" , "Unknown" , "N/A" );
+        GamesService.save( game , gameDatabase );
         updateTable();
     }
 
-    public void updateTable() {
+    void updateTable(String move) {
+        Moves saveItem = new Moves( getMoveId() + 1 , getGameId() , move );
+        MovesService.save( saveItem , gameDatabase );
         allMoves.clear();
-        MovesService.selectForTable( allMoves , gameDatabase );
+        MovesService.selectForTable( allMoves , gameDatabase , getGameId() );
+        tableView.setItems( FXCollections.observableList( allMoves ) );
+    }
+
+    private int getGameId() {
+        ArrayList<Games> list = new ArrayList<>();
+        GamesService.selectAll( list , gameDatabase );
+        try {
+            return list.get( list.size() - 1 ).getGameId();
+        } catch ( Exception empty ) {
+            return 0;
+        }
+    }
+
+    private int getMoveId() {
+        ArrayList<Moves> list = new ArrayList<>();
+        MovesService.selectAll( list , gameDatabase );
+        try {
+            return list.get( list.size() - 1 ).getMoveId();
+        } catch ( Exception empty ) {
+            return 0;
+        }
+    }
+
+
+    private void updateTable() {
+        allMoves.clear();
+        MovesService.selectForTable( allMoves , gameDatabase , getGameId() );
         tableView.setItems( FXCollections.observableList( allMoves ) );
     }
 
@@ -80,9 +116,9 @@ public class DataController {
             System.out.println(c);
         }
         //how to save temp
-        Games game = new Games(0,"28/11/99","hello","world");
-        GamesService.save(game,gameDatabase);
 
+        Moves move = new Moves( 5 , 0 , "e4" );
+        MovesService.save( move , gameDatabase );
 
     }
 
@@ -193,15 +229,28 @@ public class DataController {
 
     public void exitPrompt () {
         Optional msgResult = dialogueBox(
-                "Are you sure you want to exit?\nMake sure you have saved your game.",
+                "Are you sure you want to exit?" ,
                 "Yes","No"
         );
 
 
         if ( msgResult.isPresent() && msgResult.get() == option1 ) {
-            tournamentDatabase.disconnect ();
-            gameDatabase.disconnect ();
-            System.exit (0);
+            Optional msg2Result = dialogueBox(
+                    "Save current game?" ,
+                    "Yes" , "No"
+            );
+            if ( msg2Result.isPresent() && msg2Result.get() == option1 ) {
+                tournamentDatabase.disconnect();
+                gameDatabase.disconnect();
+                System.exit( 0 );
+            } else {
+                //delete current game id
+                MovesService.deleteById( getGameId() , gameDatabase );
+                GamesService.deleteById( getGameId() , gameDatabase );
+                tournamentDatabase.disconnect();
+                gameDatabase.disconnect();
+                System.exit( 0 );
+            }
         }
     }
 

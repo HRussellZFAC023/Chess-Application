@@ -10,7 +10,7 @@ import java.util.List;
 public class GamesService {
 
     public static void selectAll(List<Games> targetList, DatabaseConnection database) {
-        PreparedStatement statement = database.newStatement("SELECT game_ID, date_Played, white_player, black_player FROM game ORDER BY game_ID");
+        PreparedStatement statement = database.newStatement( "SELECT * FROM game ORDER BY game_ID" );
 
         try {
             if (statement != null) {
@@ -19,7 +19,9 @@ public class GamesService {
 
                 if (results != null) {
                     while (results.next()) {
-                        targetList.add(new Games(results.getInt("game_ID"), results.getString("date_Played"), results.getString("white_player"), results.getString("black_player")));
+                        targetList.add( new Games( results.getInt( "game_ID" ) , results.getString( "date_Played" ) ,
+                                results.getString( "white_player" ) , results.getString( "black_player" ) ,
+                                results.getString( "result" ) ) );
                     }
                 }
             }
@@ -38,18 +40,22 @@ public class GamesService {
 
         try {
             if (existingItem == null) {
-                PreparedStatement statement = database.newStatement("INSERT INTO game (date_Played, white_player, black_player) VALUES (?,?,?)");
+                PreparedStatement statement = database.newStatement(
+                        "INSERT INTO game (date_Played, white_player, black_player, result) VALUES (?,?,?,?)" );
                 statement.setString(1, itemToSave.getGameDate());
                 statement.setString(2, itemToSave.getWhite());
                 statement.setString(3, itemToSave.getBlack());
+                statement.setString( 4 , itemToSave.getResult() );
                 database.executeUpdate(statement);
             }
             else {
-                PreparedStatement statement = database.newStatement("UPDATE game SET date_Played = ?, white_player = ?, black_player = ? WHERE game_ID = ?");
-                statement.setString(1, itemToSave.getBlack());
+                PreparedStatement statement = database.newStatement(
+                        "UPDATE game SET date_Played = ?, white_player = ?, black_player = ?, result = ? WHERE game_ID = ?" );
+                statement.setString( 1 , itemToSave.getGameDate() );
                 statement.setString(2, itemToSave.getWhite());
-                statement.setString(3, itemToSave.getGameDate());
-                statement.setInt(4, itemToSave.getGameId());
+                statement.setString( 3 , itemToSave.getBlack() );
+                statement.setString( 4 , itemToSave.getResult() );
+                statement.setInt( 5 , itemToSave.getGameId() );
                 database.executeUpdate(statement);
             }
         } catch (SQLException resultsException) {
@@ -58,6 +64,17 @@ public class GamesService {
 
 
     }	// insert & update
-    public static void deleteById(int id, DatabaseConnection database) { }
+
+    public static void deleteById(int id , DatabaseConnection database) {
+        PreparedStatement statement = database.newStatement( "DELETE FROM Game WHERE game_ID = ?" );
+
+        try {
+            statement.setInt( 1 , id );
+            database.executeUpdate( statement );
+        } catch ( SQLException resultsException ) {
+            System.out.println( "Database deletion error: " + resultsException.getMessage() );
+        }
+
+    }
 
 }
