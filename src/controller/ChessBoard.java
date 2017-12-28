@@ -123,7 +123,8 @@ public class ChessBoard extends GridPane {
     }
 
 
-    private void defineStartPositions() {
+    public void defineStartPositions() {
+        //set new pieces
         this.space[0][0].setPiece( new Rook( true ) );
         this.space[1][0].setPiece( new Knight( true ) );
         this.space[2][0].setPiece( new Bishop( true ) );
@@ -149,6 +150,15 @@ public class ChessBoard extends GridPane {
         for ( int i = 0;i < this.space[0].length;i++ )
             this.space[i][6].setPiece( new Pawn( false ) );
 
+    }
+
+    public void removeAllPieces() {
+        //remove any old pieces
+        for ( int i = 0;i < 8;i++ ) {
+            for ( int j = 0;j < 8;j++ ) {
+                this.space[i][j].removePiece();
+            }
+        }
     }
 
     private void onSpaceClick(final int X , final int Y) {
@@ -437,9 +447,9 @@ public class ChessBoard extends GridPane {
         return (X >= 0 && X < 8) && (Y >= 0 && Y < 8);
     }
 
-    public void setSize(final double width) {
-        this.setMinSize( width , width );
-        this.setMaxSize( width , width );
-        this.setPrefSize( width , width );
+    public void setSize(final double size) {
+        this.setMinSize( size , size );
+        this.setMaxSize( size , size );
+        this.setPrefSize( size , size );
     }
 }

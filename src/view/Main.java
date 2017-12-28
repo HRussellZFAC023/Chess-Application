@@ -55,11 +55,10 @@ public class Main extends Application {
         MenuBar myMenu = new MenuBar();
         Menu gameMenu = new Menu("Game");
         MenuItem newGameButton = new MenuItem("New game");
-        MenuItem saveButton = new MenuItem("Save");
+        MenuItem saveButton = new MenuItem( "Save As" );
         MenuItem openButton = new MenuItem("Open"); //when this is pressed offer user to load a pgn or load from database
-        MenuItem setupButton = new MenuItem("Setup Position");
         MenuItem quitButton = new MenuItem("Quit");
-        gameMenu.getItems().addAll(newGameButton,saveButton,openButton,setupButton,quitButton);
+        gameMenu.getItems().addAll( newGameButton , saveButton , openButton , quitButton );
 
         Menu tournamentMenu = new Menu("Tournaments");
         MenuItem tournamentItem1 = new MenuItem( "Generate Tournament" );
@@ -70,19 +69,6 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("Rules of chess");
         MenuItem aboutItem2 = new MenuItem("Credits");
         aboutMenu.getItems().addAll(aboutItem1,aboutItem2);
-
-         /*TODO Add functionality to menu clicks*/
-        newGameButton.setOnAction(
-                e -> controller.doSomething() ); //Resets Chessboard after asking if user would like to save
-        saveButton.setOnAction(e -> controller.saveSomething());
-        openButton.setOnAction(e -> controller.openSomething());
-        setupButton.setOnAction(e -> controller.doSomething());
-        tournamentItem1.setOnAction(e -> controller.doSomething());
-        tournamentItem2.setOnAction(e -> controller.doSomething());
-        aboutItem1.setOnAction(e -> controller.doSomething());
-        aboutItem2.setOnAction(e -> controller.doSomething());
-        quitButton.setOnAction(e -> controller.exitPrompt());
-        quitButton.setAccelerator(new KeyCodeCombination(KeyCode.Q,KeyCombination.CONTROL_DOWN));
 
         myMenu.getMenus().addAll( gameMenu , tournamentMenu , aboutMenu );
         root.getChildren().add(myMenu);
@@ -116,13 +102,35 @@ public class Main extends Application {
         buttonPane.setPadding(new Insets(10));
         buttonPane.setSpacing(10);
         Button undoButton = new Button("Undo");
-        Button Result = new Button( "Result" );
+
         undoButton.getStyleClass().add("buttonx");
-        Result.getStyleClass().add( "buttonx" );
-        buttonPane.getChildren().addAll( undoButton , Result );
+        Button result = new Button( "Result" );
+        result.getStyleClass().add( "buttonx" );
+        buttonPane.getChildren().addAll( undoButton , result );
         rightPane.getChildren().addAll( tableView , buttonPane );
         borderPane.setRight(rightPane);
         BorderPane.setAlignment(rightPane,Pos.CENTER);
+
+        //action events
+        newGameButton.setOnAction( e -> {
+            if ( controller.newGame() ) {//Resets Chessboard after asking if user would like to save
+                chessBoard.removeAllPieces();
+                chessBoard.defineStartPositions();
+            }
+        } );
+        newGameButton.setAccelerator( new KeyCodeCombination( KeyCode.N , KeyCombination.CONTROL_DOWN ) );
+        saveButton.setOnAction( e -> controller.saveAsPGN() );
+        saveButton.setAccelerator( new KeyCodeCombination( KeyCode.S , KeyCombination.CONTROL_DOWN ) );
+        openButton.setOnAction( e -> controller.openSomething() );
+        openButton.setAccelerator( new KeyCodeCombination( KeyCode.O , KeyCombination.CONTROL_DOWN ) );
+        quitButton.setOnAction( e -> controller.exitPrompt() );
+        quitButton.setAccelerator( new KeyCodeCombination( KeyCode.Q , KeyCombination.CONTROL_DOWN ) );
+        tournamentItem1.setOnAction( e -> controller.doSomething() );
+        tournamentItem2.setOnAction( e -> controller.doSomething() );
+        aboutItem1.setOnAction( e -> controller.doSomething() );
+        aboutItem2.setOnAction( e -> controller.doSomething() );
+        undoButton.setOnAction( e -> controller.doSomething() );
+        result.setOnAction( e -> controller.inputNameAndResult() );
 
     }
 
