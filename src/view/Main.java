@@ -18,6 +18,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.MoveView;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static java.awt.Desktop.getDesktop;
+import static java.awt.Desktop.isDesktopSupported;
+
 
 /*
 TODO write PGN contents to database
@@ -127,8 +134,16 @@ public class Main extends Application {
         quitButton.setAccelerator( new KeyCodeCombination( KeyCode.Q , KeyCombination.CONTROL_DOWN ) );
         tournamentItem1.setOnAction( e -> controller.doSomething() );
         tournamentItem2.setOnAction( e -> controller.doSomething() );
-        aboutItem1.setOnAction( e -> controller.doSomething() );
-        aboutItem2.setOnAction( e -> controller.doSomething() );
+        aboutItem1.setOnAction( e -> {
+            if ( isDesktopSupported() ) {
+                try {
+                    getDesktop().browse( new URI( "http://www.chessvariants.com/d.chess/chess.html" ) );
+                } catch ( IOException | URISyntaxException e1 ) {
+                    e1.printStackTrace();
+                }
+            }
+        } );
+        aboutItem2.setOnAction( e -> controller.aboutMessage() );
         undoButton.setOnAction( e -> controller.doSomething() );
         result.setOnAction( e -> controller.inputNameAndResult() );
 

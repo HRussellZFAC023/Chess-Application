@@ -216,7 +216,7 @@ public class ChessBoard extends GridPane {
                             (Y == 7 && space[X][Y].getPiece().getColour()) ||
                             (Y == 0 &&!space[X][Y].getPiece().getColour()))
                     {
-                        space[X][Y].setPiece(choosePiece(space[X][Y].getPiece().getColour()));
+                        space[X][Y].setPiece( choosePiece( space[X][Y].getPiece().getColour() ) );
                     }
 
                     if(space[X][Y].getPiece().getPieceName().equals("King") &&
@@ -294,7 +294,7 @@ public class ChessBoard extends GridPane {
         if (alert.getResult() == option2) return new Rook( colour );
         else if (alert.getResult() == option3) return new Bishop( colour );
         else if (alert.getResult() == option4) return new Knight( colour );
-        else return new Queen( true );
+        else return new Queen( colour );
     }
 
 
@@ -424,7 +424,9 @@ public class ChessBoard extends GridPane {
                     {
 
                         if ( space[xVal][yVal].getPiece() == null ||
-                                space[xVal][yVal].getPiece().getColour() != space[X][Y].getPiece().getColour() ) {
+                                space[xVal][yVal].getPiece().getColour() != space[X][Y].getPiece().getColour() &&
+                                        ! space[xVal][yVal].getPiece().getPieceName()
+                                                .equals( "King" ) ) { //stops enemy taking king
                             if ( space[X][Y].getPiece().getPieceName().equals( "Pawn" ) && m == MoveList.UP &&
                                     space[xVal][yVal].getPiece() != null ) break;
                             legalMoves.add( ai , space[xVal][yVal] );

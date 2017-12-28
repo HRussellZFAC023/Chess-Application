@@ -385,4 +385,13 @@ public class DataController {
         }
         return false;
     }
+
+    public void aboutMessage() {
+        Alert alert = new Alert( Alert.AlertType.INFORMATION , "Created by Henry Russell 2017 " +
+                "\nIcons from Wikimedia Commons" +
+                "\nStylesheet \"Dark theme\" http://code.makery.ch/library/javafx-8-tutorial/part4/" +
+                "\nExemplar 1 https://github.com/SteveBirtles/PizzaProject" +
+                "\nExemplar 2 https://github.com/Stevoisiak/JavaFX-Online-Chess" , ButtonType.CLOSE );
+        alert.show();
+    }
 }
