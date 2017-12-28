@@ -103,6 +103,7 @@ public class Main extends Application {
         blackMoves.setSortable(false);
         tableView.getColumns().add( blackMoves );
         tableView.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
+        tableView.setSelectionModel( null );
 
         HBox buttonPane = new HBox();
         buttonPane.setAlignment(Pos.BASELINE_CENTER);
@@ -144,7 +145,7 @@ public class Main extends Application {
             }
         } );
         aboutItem2.setOnAction( e -> controller.aboutMessage() );
-        undoButton.setOnAction( e -> controller.doSomething() );
+        undoButton.setOnAction( e -> chessBoard.undo() );
         result.setOnAction( e -> controller.inputNameAndResult() );
 
     }

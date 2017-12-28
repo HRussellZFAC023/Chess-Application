@@ -30,11 +30,11 @@ import static javafx.scene.control.ButtonType.CLOSE;
 public class DataController {
 
     private final DatabaseConnection tournamentDatabase;
-    private final DatabaseConnection gameDatabase;
+    final DatabaseConnection gameDatabase;
     private ButtonType option1;
     private TableView<MoveView> tableView;
-    private List<MoveView> allMoves = new ArrayList<>();
     private Games game;
+    List<MoveView> allMoves = new ArrayList<>();
 
     public DataController(TableView<MoveView> tableView) {
 
@@ -57,6 +57,7 @@ public class DataController {
         allMoves.clear();
         MovesService.selectForTable( allMoves , gameDatabase , getCurrentGameId() );
         tableView.setItems( FXCollections.observableList( allMoves ) );
+        //tableView.getSelectionModel().select(allMoves.size()-1);
     }
 
     private int getCurrentGameId() {
@@ -69,7 +70,7 @@ public class DataController {
         }
     }
 
-    private int getMoveId() {
+    int getMoveId() {
         ArrayList<Moves> list = new ArrayList<>();
         MovesService.selectAll( list , gameDatabase );
         try {
@@ -80,7 +81,7 @@ public class DataController {
     }
 
 
-    private void updateTable() {
+    void updateTable() {
         allMoves.clear();
         MovesService.selectForTable( allMoves , gameDatabase , getCurrentGameId() );
         tableView.setItems( FXCollections.observableList( allMoves ) );
@@ -243,7 +244,7 @@ public class DataController {
                 System.exit( 0 );
             } else {
                 //delete current game id
-                MovesService.deleteById( getCurrentGameId() , gameDatabase );
+                MovesService.deleteByGameId( getCurrentGameId() , gameDatabase );
                 GamesService.deleteById( getCurrentGameId() , gameDatabase );
                 tournamentDatabase.disconnect();
                 gameDatabase.disconnect();
@@ -364,7 +365,7 @@ public class DataController {
 
         if ( msgResult.isPresent() && msgResult.get() != option1 && msgResult.get() != ButtonType.CLOSE )//button2
         {
-            MovesService.deleteById( getCurrentGameId() , gameDatabase );
+            MovesService.deleteByGameId( getCurrentGameId() , gameDatabase );
             GamesService.deleteById( getCurrentGameId() , gameDatabase );
         }
         if ( msgResult.isPresent() && msgResult.get() == option1 ) {
@@ -387,11 +388,13 @@ public class DataController {
     }
 
     public void aboutMessage() {
-        Alert alert = new Alert( Alert.AlertType.INFORMATION , "Created by Henry Russell 2017 " +
+        Alert alert = new Alert( Alert.AlertType.INFORMATION ,
+                "Created by Henry Russell 2017 " +
                 "\nIcons from Wikimedia Commons" +
                 "\nStylesheet \"Dark theme\" http://code.makery.ch/library/javafx-8-tutorial/part4/" +
                 "\nExemplar 1 https://github.com/SteveBirtles/PizzaProject" +
                 "\nExemplar 2 https://github.com/Stevoisiak/JavaFX-Online-Chess" , ButtonType.CLOSE );
         alert.show();
     }
+
 }

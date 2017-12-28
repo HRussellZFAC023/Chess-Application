@@ -97,9 +97,22 @@ public class MovesService {
     }
 
 
-    public static void deleteById(int id , DatabaseConnection database) {
+    public static void deleteByGameId(int id , DatabaseConnection database) {
 
         PreparedStatement statement = database.newStatement( "DELETE FROM Move WHERE game_ID = ?" );
+
+        try {
+            statement.setInt( 1 , id );
+            database.executeUpdate( statement );
+        } catch ( SQLException resultsException ) {
+            System.out.println( "Database deletion error: " + resultsException.getMessage() );
+        }
+
+    }
+
+    public static void deleteByMoveId(int id , DatabaseConnection database) {
+
+        PreparedStatement statement = database.newStatement( "DELETE FROM Move WHERE move_ID = ?" );
 
         try {
             statement.setInt( 1 , id );

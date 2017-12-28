@@ -12,6 +12,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 import model.MoveView;
+import model.game.MovesService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,8 +26,6 @@ public class ChessBoard extends GridPane {
     private List<Square> legalMoves = new ArrayList<>();
     private Square lastClickedSquare = null;
     private Square enpassant = null;    //stores the position of enpassant
-    private MoveView moves;
-
     private int turnCounter = 0;
     private boolean whitesTurn;
     private String moveString;
@@ -42,16 +41,19 @@ public class ChessBoard extends GridPane {
                 light = ((x + y) % 2 == 0);
 
                 final int xVal = (x - 1);
-                final int yVal = y;
 
-                space[xVal][y] = new Square( light , x , y );
+                space[xVal][y] = new Square( x , y );
+                if ( light )
+                    space[xVal][y].getStyleClass().add( "chess-space-light" );
+                else
+                    space[xVal][y].getStyleClass().add( "chess-space-dark" );
 
                 if ( white ) {
-                    this.add( space[xVal][yVal] , x , 7 - y );
+                    this.add( space[xVal][y] , x , 7 - y );
                 } else {
-                    this.add( space[xVal][yVal] , x , y );
+                    this.add( space[xVal][y] , x , y );
                 }
-                setActionEvents( xVal , yVal );
+                setActionEvents( xVal , y );
             }
             //sets row labels
             Label xchar = new Label( Character.toString( ascii++ ) );
@@ -125,30 +127,30 @@ public class ChessBoard extends GridPane {
 
     public void defineStartPositions() {
         //set new pieces
-        this.space[0][0].setPiece( new Rook( true ) );
-        this.space[1][0].setPiece( new Knight( true ) );
-        this.space[2][0].setPiece( new Bishop( true ) );
-        this.space[3][0].setPiece( new Queen( true ) );
-        this.space[4][0].setPiece( new King( true ) );
-        this.space[5][0].setPiece( new Bishop( true ) );
-        this.space[6][0].setPiece( new Knight( true ) );
-        this.space[7][0].setPiece( new Rook( true ) );
+        space[0][0].setPiece( new Rook( true ) );
+        space[1][0].setPiece( new Knight( true ) );
+        space[2][0].setPiece( new Bishop( true ) );
+        space[3][0].setPiece( new Queen( true ) );
+        space[4][0].setPiece( new King( true ) );
+        space[5][0].setPiece( new Bishop( true ) );
+        space[6][0].setPiece( new Knight( true ) );
+        space[7][0].setPiece( new Rook( true ) );
 
-        for ( int i = 0;i < this.space[0].length;i++ )
-            this.space[i][1].setPiece( new Pawn( true ) );
+        for ( int i = 0;i < space[0].length;i++ )
+            space[i][1].setPiece( new Pawn( true ) );
 
         // black pieces
-        this.space[0][7].setPiece( new Rook( false ) );
-        this.space[1][7].setPiece( new Knight( false ) );
-        this.space[2][7].setPiece( new Bishop( false ) );
-        this.space[3][7].setPiece( new Queen( false ) );
-        this.space[4][7].setPiece( new King( false ) );
-        this.space[5][7].setPiece( new Bishop( false ) );
-        this.space[6][7].setPiece( new Knight( false ) );
-        this.space[7][7].setPiece( new Rook( false ) );
+        space[0][7].setPiece( new Rook( false ) );
+        space[1][7].setPiece( new Knight( false ) );
+        space[2][7].setPiece( new Bishop( false ) );
+        space[3][7].setPiece( new Queen( false ) );
+        space[4][7].setPiece( new King( false ) );
+        space[5][7].setPiece( new Bishop( false ) );
+        space[6][7].setPiece( new Knight( false ) );
+        space[7][7].setPiece( new Rook( false ) );
 
-        for ( int i = 0;i < this.space[0].length;i++ )
-            this.space[i][6].setPiece( new Pawn( false ) );
+        for ( int i = 0;i < space[0].length;i++ )
+            space[i][6].setPiece( new Pawn( false ) );
 
     }
 
@@ -156,7 +158,7 @@ public class ChessBoard extends GridPane {
         //remove any old pieces
         for ( int i = 0;i < 8;i++ ) {
             for ( int j = 0;j < 8;j++ ) {
-                this.space[i][j].removePiece();
+                space[i][j].removePiece();
             }
         }
     }
@@ -256,7 +258,6 @@ public class ChessBoard extends GridPane {
 
     private void recordMove(final boolean capture , final boolean castledKingside , final boolean castledQueenside , final String moveString , final String captureMoveString) {
         String reformattedMove = letter( moveString );
-
 
         if ( capture ) {
             reformattedMove = letter( captureMoveString ) + "x" + moveString.substring( moveString.length() - 2 );
@@ -449,9 +450,74 @@ public class ChessBoard extends GridPane {
         return (X >= 0 && X < 8) && (Y >= 0 && Y < 8);
     }
 
+
     public void setSize(final double size) {
         this.setMinSize( size , size );
         this.setMaxSize( size , size );
         this.setPrefSize( size , size );
     }
+
+    public void undo() {
+        turnCounter = turnCounter - 1;
+        removeAllPieces();
+        defineStartPositions();
+        MovesService.deleteByMoveId( controller.getMoveId() , controller.gameDatabase );
+        controller.updateTable();
+        //controller.allMoves.remove(controller.allMoves.size()-1);
+        for ( MoveView m : controller.allMoves ) {
+            makeMove( m.getWhite() , true );
+            if ( ! m.getBlack().equals( "" ) )
+                makeMove( m.getBlack() , false ); //because table stores "" for unmade black moves
+        }
+    }
+
+    private void makeMove(String moveString , boolean colour) {
+        Piece piece;
+        Square destination = space[moveString.charAt( moveString.length() - 2 ) - 97]
+                [Character.getNumericValue( moveString.charAt( moveString.length() - 1 ) ) - 1];
+
+        switch (moveString.charAt( 0 )) {
+            case 'K':
+                piece = new King( colour );
+                break;
+            case 'Q':
+                piece = new Queen( colour );
+                break;
+            case 'R':
+                piece = new Rook( colour );
+                break;
+            case 'B':
+                piece = new Bishop( colour );
+                break;
+            case 'N':
+                piece = new Knight( colour );
+                break;
+            default:
+                piece = new Pawn( colour );
+                break;
+        }
+
+
+        for ( int x = 0;x < 8;x++ ) {
+            for ( int y = 0;y < 8;y++ ) {
+                if ( space[x][y].getPiece() != null &&
+                        space[x][y].getPiece().getPieceName().equals( piece.getPieceName() ) &&
+                        space[x][y].getPiece().getColour() == piece.getColour() ) {
+                    showAvailableMoves( x , y );
+                    disarmLegalMoves();
+                    space[x][y].disarmButton();
+                    //if piece can make move
+                    if ( legalMoves.contains( destination ) ) {
+                        space[x][y].getPiece().setMoveCounter( space[x][y].getPiece().getMoveCounter() + 1 );
+                        destination.setPiece( space[x][y].getPiece() );
+                        space[x][y].removePiece();
+                    }
+
+
+                }
+            }
+        }
+    }
+
 }
+

@@ -4,7 +4,7 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import view.WrappedImageView
 
-open class Square(private var light: Boolean , protected var x: Int , protected var y: Int) : Button() {
+open class Square(val x: Int , val y: Int) : Button() {
 
     private var img: Image? = null
     private var imageView: ImageView? = null
@@ -19,10 +19,6 @@ open class Square(private var light: Boolean , protected var x: Int , protected 
 
     init {
         styleClass.add("chess-space")
-        if (light)
-            styleClass.add("chess-space-light")
-        else
-            styleClass.add("chess-space-dark")
     }
 
 
@@ -45,7 +41,7 @@ open class Square(private var light: Boolean , protected var x: Int , protected 
     }
 
     override fun toString(): String {
-        return "Square(light=$light, x=$x, y=$y, piece=$piece)"
+        return "Square( x=$x, y=$y, piece=$piece)"
     }
 
 
