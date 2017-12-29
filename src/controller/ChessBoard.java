@@ -266,17 +266,17 @@ public class ChessBoard extends GridPane {
         String reformattedMove;
 
         if ( capture ) {
-            reformattedMove = letter( captureMoveString , false ) + "x" +
+            reformattedMove = letter( captureMoveString , ambiguityCheck( currentSquare , true ) , true ) + "x" +
                     moveString.substring( moveString.length() - 2 ); //todo ambiguity check capture
         } else if ( castledKingside ) {
             reformattedMove = "O-O";
         } else if ( castledQueenside ) {
             reformattedMove = "O-O-O";
-        } else reformattedMove = letter( moveString , ambiguityCheck( currentSquare ) );
+        } else reformattedMove = letter( moveString , ambiguityCheck( currentSquare , false ) , false );
         controller.updateTable( reformattedMove );
     }
 
-    private boolean ambiguityCheck(Square currentSquare) {
+    private boolean ambiguityCheck(Square currentSquare , boolean capture) {
         //(this is after the move has been made so it is checking for other pieces of same type which can also go to space)
 
         for ( int x = 0; x < 8; x++ ) {
@@ -287,7 +287,9 @@ public class ChessBoard extends GridPane {
                     Piece piece = currentSquare.getPiece();
                     currentSquare
                             .removePiece(); //wont work because a piece is there !! therefore have to remove piece first
+                    if ( capture ) currentSquare.setPiece( new Pawn( whitesTurn ) );
                     showAvailableMoves( x , y );
+                    currentSquare.removePiece();
                     currentSquare.setPiece( piece );
                     disarmLegalMoves();
                     space[x][y].disarmButton();
@@ -301,23 +303,37 @@ public class ChessBoard extends GridPane {
     }
 
     @NotNull
-    private String letter(final String moveString , final boolean ambiguityCheck) {
+    private String letter(final String moveString , final boolean ambiguityCheck , final boolean capture) {
         //returns letter + co-ordinates
         if ( ! moveString.substring( 0 , 1 ).equals( "P" ) && ! moveString.substring( 0 , 1 ).equals( "K" ) ) {
-            if ( ambiguityCheck ) return moveString.substring( 0 , 1 ) +
-                    moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
-                    moveString.substring( moveString.length() - 2 );
-            else return moveString.substring( 0 , 1 ) + "" + moveString.substring( moveString.length() - 2 );
+            if ( ambiguityCheck ) {
+                if ( ! capture ) return moveString.substring( 0 , 1 ) +
+                        moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
+                        moveString.substring( moveString.length() - 2 );
+                return moveString.substring( 0 , 1 ) +
+                        moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
+            } else if ( ! capture )
+                return moveString.substring( 0 , 1 ) + "" + moveString.substring( moveString.length() - 2 );
+            else return moveString.substring( 0 , 1 );
         } else if ( moveString.substring( 0 , 1 ).equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Kn" ) ) {
-            if ( ambiguityCheck )
-                return "N" + moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
-                        moveString.substring( moveString.length() - 2 );
-            else return "N" + "" + moveString.substring( moveString.length() - 2 );
+            if ( ambiguityCheck ) {
+                if ( ! capture )
+                    return "N" + moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
+                            moveString.substring( moveString.length() - 2 );
+                return "N" + moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
+            } else if ( ! capture ) return "N" + "" + moveString.substring( moveString.length() - 2 );
+            else return "N";
         } else if ( moveString.substring( 0 , 1 ).equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Ki" ) ) {
-            if ( ambiguityCheck )
-                return "K" + moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
-                        moveString.substring( moveString.length() - 2 );
-            else return "K" + "" + moveString.substring( moveString.length() - 2 );
+            if ( ambiguityCheck ) {
+                if ( ! capture )
+                    return "K" + moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
+                            moveString.substring( moveString.length() - 2 );
+                return "K" + moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
+            } else if ( ! capture ) return "K" + "" + moveString.substring( moveString.length() - 2 );
+            else return "K";
+        } else if ( ! capture ) return moveString.substring( moveString.length() - 2 );
+        else if ( ! ambiguityCheck ) {
+            return moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
         } else return moveString.substring( moveString.length() - 2 );
     }
 
@@ -561,34 +577,41 @@ public class ChessBoard extends GridPane {
                         break;
                 }
 
-                Matcher m = Pattern.compile( ".*[a-h]{2}.*" ).matcher( moveString );
+                Matcher m = Pattern.compile( ".*[a-h]{2}.*|.[a-z]{3}.*|[a-h]\\d[a-z]{2}\\d|[A-Z][a-z]\\d..\\d" )
+                        .matcher( moveString );
                 if ( m.matches() ) { //checking for ambiguous move
-                    System.out.println( "ambiguous" );
-//
-//
+                    //get first lower case
+                    String lowerCase = moveString.replaceAll( "[A-Z]|\\d" , "" );
+                    int x = (lowerCase.charAt( 0 ) - 97);
+                    moveLoop( x , destination , piece );
                 } else {
-                }
-                for ( int x = 0; x < 8; x++ ) {
-                    for ( int y = 0; y < 8; y++ ) {
-                        if ( space[x][y].getPiece() != null &&
-                                space[x][y].getPiece().getPieceName().equals( piece.getPieceName() ) &&
-                                space[x][y].getPiece().getColour() == piece.getColour() ) {
-                            showAvailableMoves( x , y );
-                            disarmLegalMoves();
-                            space[x][y].disarmButton();
-
-                            if ( legalMoves.contains( destination ) ) {
-                                space[x][y].getPiece().setMoveCounter(
-                                        space[x][y].getPiece().getMoveCounter() + 1 ); //increment move counter of piece
-                                destination.setPiece( space[x][y].getPiece() );
-                                space[x][y].removePiece();
-                            }
-
-
-                        }
+                    for ( int x = 0; x < 8; x++ ) {
+                        moveLoop( x , destination , piece );
                     }
                 }
+
                 break;
+        }
+    }
+
+    private void moveLoop(int x , Square destination , Piece piece) {
+        for ( int y = 0; y < 8; y++ ) {
+            if ( space[x][y].getPiece() != null &&
+                    space[x][y].getPiece().getPieceName().equals( piece.getPieceName() ) &&
+                    space[x][y].getPiece().getColour() == piece.getColour() ) {
+                showAvailableMoves( x , y );
+                disarmLegalMoves();
+                space[x][y].disarmButton();
+
+                if ( legalMoves.contains( destination ) ) {
+                    space[x][y].getPiece().setMoveCounter(
+                            space[x][y].getPiece().getMoveCounter() + 1 ); //increment move counter of piece
+                    destination.setPiece( space[x][y].getPiece() );
+                    space[x][y].removePiece();
+                }
+
+
+            }
         }
     }
 

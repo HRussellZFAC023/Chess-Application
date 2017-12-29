@@ -158,10 +158,7 @@ public class DataController {
             }
 
             System.out.println(fileContents);
-            Optional<ButtonType> msgResult2 = dialogueBox( "Would you like to save the file to the database?" ,
-                    "yes","no");
 
-            if ( msgResult2.isPresent() && msgResult2.get() == option1 && msgResult2.get() != CLOSE ) {
                 boolean foundStart = false;
                 String date = "";
                 String w = "";
@@ -180,20 +177,28 @@ public class DataController {
                     } else if ( line.trim().equals("") )
                         foundStart = true;
                     else if ( foundStart ) {
+                        game = new Games( getCurrentGameId() + 1 , date , w , b , gameResult );
 
+                        //System.out.println(line);
+                        //Comments are inserted by either a ; (a comment that continues to the end of the line) or a { (which continues until a matching }). Comments do not nest.
+                        //I must remove comments before spiting. Also should remove numbers
+                        //also must remove result at the end
+                        line = line.replaceAll( "\\{.*}|;.*|\\d{0,9}\\.|1/2-1/2|1-0|0-1|\\*" , "" );
+                        String splitLine[] = line.split( " " );
 
-                        //Moves move = new Moves();
-                        System.out.println(line);
+                        for ( String s : splitLine ) {
+                            if ( ! s.equals( " " ) && ! s.equals( "" ) ) {
+                                Moves move = new Moves( getMoveId() + 1 , getCurrentGameId() , s );
+                                MovesService.save( move , gameDatabase );
+                                updateTable();
+                            }
+
+                        }
+
                     }
 
                 }
-                System.out.println(date);
-                System.out.println(w);
-                System.out.println(b);
-                System.out.println(gameResult);
 
-
-            }
 
         } else {/*TODO get user to select game from database */}
 

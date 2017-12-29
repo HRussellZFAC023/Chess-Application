@@ -34,11 +34,12 @@ public class Main extends Application {
 
     private static DataController controller;
     private static TableView<MoveView> tableView = new TableView<>();
+    private static ChessBoard chessBoard;
 
 
     public static void main(String[] args) {
 
-        controller = new DataController( tableView );
+        controller = new DataController( tableView/*,chessBoard*/ );
         launch(args);
 
     }
@@ -85,7 +86,7 @@ public class Main extends Application {
         root.getChildren().add(borderPane);
         borderPane.setPadding(new Insets(40));
 
-        ChessBoard chessBoard = new ChessBoard( true , controller );
+        chessBoard = new ChessBoard( true , controller );
         chessBoard.setAlignment(Pos.CENTER);
         chessBoard.setSize(stage.getHeight() -200);
         stage.heightProperty().addListener((obs, oldVal, newVal) -> chessBoard.setSize(stage.getHeight()-200));     //dynamically re-sises chessboard
