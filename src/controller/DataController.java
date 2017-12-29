@@ -43,13 +43,18 @@ public class DataController {
         gameDatabase = new DatabaseConnection( "src\\Assets\\Moves_Database.db" );
         this.tableView = tableView;
 
+        resetGame();
+        GamesService.save( game , gameDatabase );
+        updateTable();
+    }
+
+    private void resetGame() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern( "yyyy.MM.dd" );
         LocalDate localDate = LocalDate.now();
 
         game = new Games( 0 , dtf.format( localDate ) , "Unknown" , "Unknown" , "*" );
-        GamesService.save( game , gameDatabase );
-        updateTable();
     }
+
 
     void updateTable(String move) {
         Moves saveItem = new Moves( getMoveId() + 1 , getCurrentGameId() , move );
@@ -58,6 +63,12 @@ public class DataController {
         MovesService.selectForTable( allMoves , gameDatabase , getCurrentGameId() );
         tableView.setItems( FXCollections.observableList( allMoves ) );
         //tableView.getSelectionModel().select(allMoves.size()-1);
+    }
+
+    void updateTable() {
+        allMoves.clear();
+        MovesService.selectForTable( allMoves , gameDatabase , getCurrentGameId() );
+        tableView.setItems( FXCollections.observableList( allMoves ) );
     }
 
     private int getCurrentGameId() {
@@ -79,14 +90,6 @@ public class DataController {
             return 0;
         }
     }
-
-
-    void updateTable() {
-        allMoves.clear();
-        MovesService.selectForTable( allMoves , gameDatabase , getCurrentGameId() );
-        tableView.setItems( FXCollections.observableList( allMoves ) );
-    }
-
 
     public void testDb () {
         ArrayList<Enrollments> testList = new ArrayList<>();
@@ -125,6 +128,8 @@ public class DataController {
     }
 
     public void openSomething() {
+
+        updateTable();
         int local = 2;  //0 - not local event; 1- local event; 2 - event cancelled
         String fileLocation;
         ArrayList<String> fileContents = new ArrayList<>();
@@ -138,7 +143,6 @@ public class DataController {
         System.out.println( msgResult );
 
         if ( local == 0 ) {
-
             FileDialog dialog = new FileDialog(( Frame ) null,"Select File to Open");
             dialog.setMode(FileDialog.LOAD);
             dialog.setVisible(true);
@@ -178,12 +182,11 @@ public class DataController {
                         foundStart = true;
                     else if ( foundStart ) {
                         game = new Games( getCurrentGameId() + 1 , date , w , b , gameResult );
-
                         //System.out.println(line);
                         //Comments are inserted by either a ; (a comment that continues to the end of the line) or a { (which continues until a matching }). Comments do not nest.
                         //I must remove comments before spiting. Also should remove numbers
                         //also must remove result at the end
-                        line = line.replaceAll( "\\{.*}|;.*|\\d{0,9}\\.|1/2-1/2|1-0|0-1|\\*" , "" );
+                        line = line.replaceAll( "\\{.*}|;.*|\\d{0,9}\\.|1/2-1/2|1-0|0-1|\\*|\\+|!" , "" );
                         String splitLine[] = line.split( " " );
 
                         for ( String s : splitLine ) {
@@ -200,9 +203,43 @@ public class DataController {
                 }
 
 
-        } else {/*TODO get user to select game from database */}
+        } else {/*TODO get user to select game from database. As dataController deletes moves, it is necessary to pass a copy */
+            //Optional getGame = databaseDialogue();
+
+
+        }
 
     }
+
+//    private Optional databaseDialogue() {
+//
+//        Dialog<Object> dialog = new Dialog<>();
+//        dialog.setTitle( "Select game" );
+//        dialog.setHeaderText( "Select game" );
+//
+//        VBox vbox = new VBox();
+//        TableView<Games> gamesTable;
+//        //Date Played column
+//        gamesTable.s
+//
+//        //White player
+//
+//
+//        //Black player
+//
+//
+//        //result column
+//
+//        dialog.getDialogPane().setContent(vbox);
+//
+//
+//
+//
+//
+//
+//
+//        return dialog.showAndWait();
+//    }
 
 
     private String extract (String line,boolean foundStart) {
@@ -273,7 +310,6 @@ public class DataController {
         Optional<ButtonType> msgResult = dialogueBox( "Export game as PGN" ,
                 "Yes" , "No" );
         if ( msgResult.isPresent() && msgResult.get() == option1 ) {
-            //TODO save as PGN
             FileDialog fileDialog = new FileDialog( new Frame() , "Save" , FileDialog.SAVE );
             fileDialog.setFilenameFilter( (dir , name) -> name.endsWith( ".pgn" ) );
             fileDialog.setFile( "Untitled.pgn" );
@@ -381,10 +417,7 @@ public class DataController {
             }
         }
         if ( msgResult.isPresent() && msgResult.get() != ButtonType.CLOSE ) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern( "yyyy.MM.dd" );
-            LocalDate localDate = LocalDate.now();
-
-            game = new Games( 0 , dtf.format( localDate ) , "Unknown" , "Unknown" , "*" );
+            resetGame();
             GamesService.save( game , gameDatabase );
             updateTable();
             return true;
@@ -401,5 +434,6 @@ public class DataController {
                 "\nExemplar 2 https://github.com/Stevoisiak/JavaFX-Online-Chess" , ButtonType.CLOSE );
         alert.show();
     }
+
 
 }

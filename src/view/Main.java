@@ -130,7 +130,14 @@ public class Main extends Application {
         newGameButton.setAccelerator( new KeyCodeCombination( KeyCode.N , KeyCombination.CONTROL_DOWN ) );
         saveButton.setOnAction( e -> controller.saveAsPGN() );
         saveButton.setAccelerator( new KeyCodeCombination( KeyCode.S , KeyCombination.CONTROL_DOWN ) );
-        openButton.setOnAction( e -> controller.openSomething() );
+        openButton.setOnAction( e -> {
+            if ( controller.newGame() ) {//Resets Chessboard after asking if user would like to save
+                chessBoard.removeAllPieces();
+                chessBoard.defineStartPositions();
+                controller.openSomething();
+
+            }
+        } );
         openButton.setAccelerator( new KeyCodeCombination( KeyCode.O , KeyCombination.CONTROL_DOWN ) );
         quitButton.setOnAction( e -> controller.exitPrompt() );
         quitButton.setAccelerator( new KeyCodeCombination( KeyCode.Q , KeyCombination.CONTROL_DOWN ) );
