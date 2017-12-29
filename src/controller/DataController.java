@@ -2,14 +2,19 @@ package controller;
 
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.WindowEvent;
 import model.DatabaseConnection;
+import model.GameView;
 import model.MoveView;
 import model.game.Games;
 import model.game.GamesService;
@@ -30,10 +35,10 @@ import static javafx.scene.control.ButtonType.CLOSE;
 public class DataController {
 
     private final DatabaseConnection tournamentDatabase;
-    final DatabaseConnection gameDatabase;
+    public final DatabaseConnection gameDatabase;
     private ButtonType option1;
     private TableView<MoveView> tableView;
-    private Games game;
+    public Games game;
     List<MoveView> allMoves = new ArrayList<>();
 
     public DataController(TableView<MoveView> tableView) {
@@ -48,7 +53,7 @@ public class DataController {
         updateTable();
     }
 
-    private void resetGame() {
+    public void resetGame() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern( "yyyy.MM.dd" );
         LocalDate localDate = LocalDate.now();
 
@@ -65,7 +70,7 @@ public class DataController {
         //tableView.getSelectionModel().select(allMoves.size()-1);
     }
 
-    void updateTable() {
+    public void updateTable() {
         allMoves.clear();
         MovesService.selectForTable( allMoves , gameDatabase , getCurrentGameId() );
         tableView.setItems( FXCollections.observableList( allMoves ) );
@@ -135,8 +140,8 @@ public class DataController {
         ArrayList<String> fileContents = new ArrayList<>();
 
 
-        Optional<ButtonType> msgResult = dialogueBox( "Would you like to open a game from a database or a PGN file" ,
-                "Local Database","PGN File");
+        Optional<ButtonType> msgResult = dialogueBox( "Would you like to open a game from a database or a PGN file?" ,
+                "Database" , "PGN File" );
 
         if (msgResult.isPresent() && msgResult.get() == option1 && msgResult.get() != CLOSE)  local = 1;
         else if (msgResult.isPresent() && msgResult.get() != option1 && msgResult.get() != CLOSE) local = 0;
@@ -157,8 +162,7 @@ public class DataController {
                         line = br.readLine();
                     }
                 }
-            } catch ( IOException e ) {
-                e.printStackTrace();
+            } catch ( IOException ignored ) {
             }
 
             System.out.println(fileContents);
@@ -203,43 +207,84 @@ public class DataController {
                 }
 
 
-        } else {/*TODO get user to select game from database. As dataController deletes moves, it is necessary to pass a copy */
-            //Optional getGame = databaseDialogue();
-
+        } else if ( local == 1 ) {
+            game = databaseDialogue().get();
+            System.out.println( game.toString() );
 
         }
 
     }
 
-//    private Optional databaseDialogue() {
-//
-//        Dialog<Object> dialog = new Dialog<>();
-//        dialog.setTitle( "Select game" );
-//        dialog.setHeaderText( "Select game" );
-//
-//        VBox vbox = new VBox();
-//        TableView<Games> gamesTable;
-//        //Date Played column
-//        gamesTable.s
-//
-//        //White player
-//
-//
-//        //Black player
-//
-//
-//        //result column
-//
-//        dialog.getDialogPane().setContent(vbox);
-//
-//
-//
-//
-//
-//
-//
-//        return dialog.showAndWait();
-//    }
+    private Optional<Games> databaseDialogue() {
+
+        Dialog<Games> dialog = new Dialog<>();
+        dialog.setTitle( "Select game" );
+        dialog.setHeaderText( "Select game" );
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStylesheets().add( "Assets/stylesheet.css" );
+        dialogPane.setMinSize( 800 , 500 );
+
+
+        VBox vbox = new VBox( 10 );
+        TableView<GameView> gamesTable = new TableView<>();
+        gamesTable.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
+        //ID column (HIDDEN)
+        TableColumn<GameView, String> IdColumn = new TableColumn<>();
+        IdColumn.setCellValueFactory( new PropertyValueFactory<>( "id" ) );
+        gamesTable.getColumns().add( IdColumn );
+        IdColumn.setVisible( false );
+
+        //Date Played column
+        TableColumn<GameView, String> dateColumn = new TableColumn<>( "Date" );
+        dateColumn.setCellValueFactory( new PropertyValueFactory<>( "date" ) );
+        gamesTable.getColumns().add( dateColumn );
+
+        //White player
+        TableColumn<GameView, String> whitePlayerColumn = new TableColumn<>( "White" );
+        whitePlayerColumn.setCellValueFactory( new PropertyValueFactory<>( "white" ) );
+        gamesTable.getColumns().add( whitePlayerColumn );
+
+        //Black player
+        TableColumn<GameView, String> blackPlayerColumn = new TableColumn<>( "Black" );
+        blackPlayerColumn.setCellValueFactory( new PropertyValueFactory<>( "black" ) );
+        gamesTable.getColumns().add( blackPlayerColumn );
+
+        //result column
+        TableColumn<GameView, String> result = new TableColumn<>( "Result" );
+        result.setCellValueFactory( new PropertyValueFactory<>( "result" ) );
+        gamesTable.getColumns().add( result );
+
+        ArrayList<GameView> list = new ArrayList<>();
+        GamesService.selectForTable( list , gameDatabase );
+        gamesTable.setItems( FXCollections.observableList( list ) );
+
+        Button delete = new Button( "Delete Game" );
+        delete.setOnAction( e -> {
+            GamesService.deleteById( gamesTable.getSelectionModel().getSelectedItem().getId() , gameDatabase );
+            list.clear();
+            GamesService.selectForTable( list , gameDatabase );
+            gamesTable.setItems( FXCollections.observableList( list ) );
+        } );
+
+
+        vbox.getChildren().addAll( gamesTable , delete );
+        vbox.setAlignment( Pos.TOP_RIGHT );
+        dialog.getDialogPane().setContent( vbox );
+        dialog.getDialogPane().getButtonTypes().add( ButtonType.APPLY );
+
+        dialog.setResultConverter( dialogButton -> {
+            if ( dialogButton == ButtonType.APPLY ) {
+                return new Games(
+                        gamesTable.getSelectionModel().getSelectedItem().getId() ,
+                        gamesTable.getSelectionModel().getSelectedItem().getDate() ,
+                        gamesTable.getSelectionModel().getSelectedItem().getWhite() ,
+                        gamesTable.getSelectionModel().getSelectedItem().getBlack() ,
+                        gamesTable.getSelectionModel().getSelectedItem().getResult() );
+            }
+            return null;
+        } );
+        return dialog.showAndWait();
+    }
 
 
     private String extract (String line,boolean foundStart) {
@@ -257,7 +302,8 @@ public class DataController {
         ButtonType option2 = new ButtonType(button2,ButtonBar.ButtonData.NO);
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION,displayText,option1,option2,CLOSE);
-
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add( "Assets/stylesheet.css" );
         Node closeButton = alert.getDialogPane().lookupButton(CLOSE);
         closeButton.managedProperty().bind(closeButton.visibleProperty());
         closeButton.setVisible(false);
@@ -351,7 +397,8 @@ public class DataController {
         Dialog<Object> dialog = new Dialog<>();
         dialog.setTitle( "Results Dialog" );
         dialog.setHeaderText( "Enter match results:" );
-
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStylesheets().add( "Assets/stylesheet.css" );
 
         // Set the button types.
         dialog.getDialogPane().getButtonTypes().addAll( ButtonType.OK , ButtonType.CANCEL );
@@ -392,8 +439,10 @@ public class DataController {
         Optional<Object> result = dialog.showAndWait();
 
         result.ifPresent( save -> {
-            game = new Games( getCurrentGameId() , dtf.format( localDate ) , whitePlayer.getText() ,
-                    blackPlayer.getText() , choices.getValue() );
+            game.setGameId( getCurrentGameId() );
+            game.setWhite( whitePlayer.getText() );
+            game.setBlack( blackPlayer.getText() );
+            game.setResult( choices.getValue() );
             GamesService.save( game , gameDatabase );
         } );
 
@@ -404,7 +453,7 @@ public class DataController {
         Optional<ButtonType> msgResult = dialogueBox( "Save current game?" ,
                 "Yes" , "No" );
 
-        if ( msgResult.isPresent() && msgResult.get() != option1 && msgResult.get() != ButtonType.CLOSE )//button2
+        if ( msgResult.isPresent() && msgResult.get() != option1 && msgResult.get() != ButtonType.CLOSE )//button2F
         {
             MovesService.deleteByGameId( getCurrentGameId() , gameDatabase );
             GamesService.deleteById( getCurrentGameId() , gameDatabase );
@@ -416,13 +465,7 @@ public class DataController {
                 inputNameAndResult();
             }
         }
-        if ( msgResult.isPresent() && msgResult.get() != ButtonType.CLOSE ) {
-            resetGame();
-            GamesService.save( game , gameDatabase );
-            updateTable();
-            return true;
-        }
-        return false;
+        return msgResult.isPresent() && msgResult.get() != ButtonType.CLOSE;
     }
 
     public void aboutMessage() {
@@ -432,6 +475,8 @@ public class DataController {
                 "\nStylesheet \"Dark theme\" http://code.makery.ch/library/javafx-8-tutorial/part4/" +
                 "\nExemplar 1 https://github.com/SteveBirtles/PizzaProject" +
                 "\nExemplar 2 https://github.com/Stevoisiak/JavaFX-Online-Chess" , ButtonType.CLOSE );
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add( "Assets/stylesheet.css" );
         alert.show();
     }
 

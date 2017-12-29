@@ -1,6 +1,7 @@
 package model.game;
 
 import model.DatabaseConnection;
+import model.GameView;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,8 +31,32 @@ public class GamesService {
         }
 
     }
-    private static Games selectById (int id,DatabaseConnection database) {
-        return null;
+
+    private static Games selectById(int id , DatabaseConnection database) {
+        Games result = null;
+
+        PreparedStatement statement = database.newStatement( "SELECT * FROM Game WHERE game_ID = ?" );
+
+        try {
+            if ( statement != null ) {
+
+                statement.setInt( 1 , id );
+                ResultSet results = database.executeQuery( statement );
+
+                if ( results != null ) {
+                    result = new Games(
+                            results.getInt( "game_ID" ) ,
+                            results.getString( "date_Played" ) ,
+                            results.getString( "white_player" ) ,
+                            results.getString( "black_player" ) ,
+                            results.getString( "result" ) );
+                }
+            }
+        } catch ( SQLException resultsException ) {
+            System.out.println( "Database select by id error: " + resultsException.getMessage() );
+        }
+
+        return result;
     }
     public static void save(Games itemToSave, DatabaseConnection database) {
 
@@ -75,6 +100,30 @@ public class GamesService {
             System.out.println( "Database deletion error: " + resultsException.getMessage() );
         }
 
+    }
+
+    public static void selectForTable(List<GameView> targetList , DatabaseConnection database) {
+        PreparedStatement statement = database.newStatement( "SELECT * From Game ORDER BY game_ID" );
+
+        try {
+            if ( statement != null ) {
+
+                ResultSet results = database.executeQuery( statement );
+
+                if ( results != null ) {
+                    while ( results.next() ) {
+                        targetList.add( new GameView(
+                                results.getInt( "game_ID" ) ,
+                                results.getString( "date_Played" ) ,
+                                results.getString( "white_player" ) ,
+                                results.getString( "black_player" ) ,
+                                results.getString( "result" ) ) );
+                    }
+                }
+            }
+        } catch ( SQLException resultsException ) {
+            System.out.println( "Database select all error: " + resultsException.getMessage() );
+        }
     }
 
 }

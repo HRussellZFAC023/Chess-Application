@@ -36,8 +36,6 @@
 .table-view{
     -fx-text-alignment: center;
     -fx-font-style: italic;
-    -fx-pref-height: 1000px;
-    -fx-pref-width: 200px;
     -fx-base: #1d1d1d;
     -fx-control-inner-background: #1d1d1d;
     -fx-background-color: #1d1d1d;
@@ -76,6 +74,55 @@
     -fx-background-color: derive(#1d1d1d,20%);
 }
 
+.dialog-pane .header-panel {
+    -fx-background-color: derive(#1d1d1d, 10%);
+}
+
+.dialog-pane .header-panel .label {
+    -fx-font-size: 18px;
+    -fx-text-fill: white;
+    -fx-font-weight: bolder;
+    -fx-opacity: 0.8;
+}
+
+.dialog-pane .button {
+    -fx-padding: 5 22 5 22;
+    -fx-border-color: #e2e2e2;
+    -fx-border-width: 2;
+    -fx-background-radius: 0;
+    -fx-background-color: #1d1d1d;
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 11pt;
+    -fx-text-fill: #d8d8d8;
+    -fx-background-insets: 0 0 0 0, 0, 1, 2;
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.dialog-pane .button:pressed, .button:default:hover:pressed {
+    -fx-background-color: white;
+    -fx-text-fill: #1d1d1d;
+}
+
+.dialog-pane .button:focused {
+    -fx-border-color: white, white;
+    -fx-border-width: 1, 1;
+    -fx-border-style: solid, segments(1, 1);
+    -fx-border-radius: 0, 0;
+    -fx-border-insets: 1 1 1 1, 0;
+}
+
+.dialog-pane .button:default {
+    -fx-background-color: -fx-focus-color;
+    -fx-text-fill: #ffffff;
+}
+
+.dialog-pane .button:default:hover {
+    -fx-background-color: derive(-fx-focus-color, 30%);
+}
+
 
 .menu-bar .label {
     -fx-font-size: 14pt;
@@ -91,7 +138,6 @@
 .menu .left-container {
     -fx-background-color: black;
 }
-
 
 
 /*

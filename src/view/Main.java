@@ -17,6 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.MoveView;
+import model.game.GamesService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -93,7 +94,7 @@ public class Main extends Application {
         borderPane.setCenter(chessBoard);
 
         VBox rightPane = new VBox();
-
+        tableView.setPrefHeight( 1000 );
         TableColumn<MoveView, String> whiteMoves = new TableColumn<>( "White" );
         whiteMoves.setCellValueFactory( new PropertyValueFactory<>( "white" ) );
         whiteMoves.setSortable(false);
@@ -123,6 +124,9 @@ public class Main extends Application {
         //action events
         newGameButton.setOnAction( e -> {
             if ( controller.newGame() ) {//Resets Chessboard after asking if user would like to save
+                controller.resetGame();
+                GamesService.save( controller.game , controller.gameDatabase );
+                controller.updateTable();
                 chessBoard.removeAllPieces();
                 chessBoard.defineStartPositions();
             }
@@ -135,7 +139,9 @@ public class Main extends Application {
                 chessBoard.removeAllPieces();
                 chessBoard.defineStartPositions();
                 controller.openSomething();
-
+                controller.resetGame();
+                GamesService.save( controller.game , controller.gameDatabase );
+                controller.updateTable();
             }
         } );
         openButton.setAccelerator( new KeyCodeCombination( KeyCode.O , KeyCombination.CONTROL_DOWN ) );
