@@ -53,7 +53,7 @@ public class GamesService {
                 }
             }
         } catch ( SQLException resultsException ) {
-            System.out.println( "Database select by id error: " + resultsException.getMessage() );
+            return null;
         }
 
         return result;

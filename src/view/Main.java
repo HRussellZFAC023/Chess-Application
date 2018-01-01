@@ -17,7 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.MoveView;
-import model.game.GamesService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -125,7 +124,6 @@ public class Main extends Application {
         newGameButton.setOnAction( e -> {
             if ( controller.newGame() ) {//Resets Chessboard after asking if user would like to save
                 controller.resetGame();
-                GamesService.save( controller.game , controller.gameDatabase );
                 controller.updateTable();
                 chessBoard.removeAllPieces();
                 chessBoard.defineStartPositions();
@@ -138,9 +136,8 @@ public class Main extends Application {
             if ( controller.newGame() ) {//Resets Chessboard after asking if user would like to save
                 chessBoard.removeAllPieces();
                 chessBoard.defineStartPositions();
-                controller.openSomething();
                 controller.resetGame();
-                GamesService.save( controller.game , controller.gameDatabase );
+                controller.openSomething();
                 controller.updateTable();
             }
         } );

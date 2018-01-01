@@ -31,25 +31,13 @@ public class MovesService {
         }
 
     }
-    private static Moves selectById (int id,DatabaseConnection database) {
-        return null;
-    }
+
     public static void save(Moves itemToSave, DatabaseConnection database) {
-        Moves existingItem = null;
-        if (itemToSave.getMoveId() != 0) existingItem = selectById(itemToSave.getMoveId(), database);
 
         try {
-            if (existingItem == null) {
+            {
                 PreparedStatement statement =
                         database.newStatement( "INSERT INTO move (move_ID, game_ID, Move) VALUES (?,?,?)" );
-                statement.setInt( 1 , itemToSave.getMoveId() );
-                statement.setInt( 2 , itemToSave.getGameId() );
-                statement.setString( 3 , itemToSave.getMove() );
-                database.executeUpdate(statement);
-            }
-            else {
-                PreparedStatement statement =
-                        database.newStatement( "UPDATE game SET game_ID = ?, move = ? WHERE id = ?" );
                 statement.setInt( 1 , itemToSave.getMoveId() );
                 statement.setInt( 2 , itemToSave.getGameId() );
                 statement.setString( 3 , itemToSave.getMove() );

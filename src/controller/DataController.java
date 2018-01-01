@@ -35,10 +35,10 @@ import static javafx.scene.control.ButtonType.CLOSE;
 public class DataController {
 
     private final DatabaseConnection tournamentDatabase;
-    public final DatabaseConnection gameDatabase;
+    final DatabaseConnection gameDatabase;
     private ButtonType option1;
     private TableView<MoveView> tableView;
-    public Games game;
+    private Games game;
     List<MoveView> allMoves = new ArrayList<>();
 
     public DataController(TableView<MoveView> tableView) {
@@ -49,7 +49,6 @@ public class DataController {
         this.tableView = tableView;
 
         resetGame();
-        GamesService.save( game , gameDatabase );
         updateTable();
     }
 
@@ -57,7 +56,8 @@ public class DataController {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern( "yyyy.MM.dd" );
         LocalDate localDate = LocalDate.now();
 
-        game = new Games( 0 , dtf.format( localDate ) , "Unknown" , "Unknown" , "*" );
+        game = new Games( getCurrentGameId() + 1 , dtf.format( localDate ) , "Unknown" , "Unknown" , "*" );
+        GamesService.save( game , gameDatabase );
     }
 
 
@@ -134,86 +134,95 @@ public class DataController {
 
     public void openSomething() {
 
-        updateTable();
         int local = 2;  //0 - not local event; 1- local event; 2 - event cancelled
         String fileLocation;
         ArrayList<String> fileContents = new ArrayList<>();
 
 
-        Optional<ButtonType> msgResult = dialogueBox( "Would you like to open a game from a database or a PGN file?" ,
+        Optional<ButtonType> msgResult = dialogueBox( "Would you like to copy a game from the database or a PGN file?" ,
                 "Database" , "PGN File" );
 
-        if (msgResult.isPresent() && msgResult.get() == option1 && msgResult.get() != CLOSE)  local = 1;
-        else if (msgResult.isPresent() && msgResult.get() != option1 && msgResult.get() != CLOSE) local = 0;
+        if ( msgResult.isPresent() && msgResult.get() == option1 && msgResult.get() != CLOSE ) local = 1;
+        else if ( msgResult.isPresent() && msgResult.get() != option1 && msgResult.get() != CLOSE ) local = 0;
         System.out.println( msgResult );
 
         if ( local == 0 ) {
-            FileDialog dialog = new FileDialog(( Frame ) null,"Select File to Open");
-            dialog.setMode(FileDialog.LOAD);
-            dialog.setVisible(true);
+            FileDialog dialog = new FileDialog( ( Frame ) null , "Select File to Open" );
+            dialog.setMode( FileDialog.LOAD );
+            dialog.setVisible( true );
             fileLocation = dialog.getFile();
-            System.out.println(fileLocation + " chosen.");
+            System.out.println( fileLocation + " chosen." );
 
             try {
-                try ( BufferedReader br = new BufferedReader(new FileReader(fileLocation)) ) {
+                try ( BufferedReader br = new BufferedReader( new FileReader( fileLocation ) ) ) {
                     String line = br.readLine();
                     while ( line != null ) {
-                        fileContents.add(line);
+                        fileContents.add( line );
                         line = br.readLine();
                     }
                 }
             } catch ( IOException ignored ) {
             }
 
-            System.out.println(fileContents);
+            System.out.println( fileContents );
 
-                boolean foundStart = false;
-                String date = "";
-                String w = "";
-                String b = "";
-                String gameResult = "";
+            boolean foundStart = false;
+            String date;
+            String w;
+            String b;
+            String gameResult;
 
-                for (String line : fileContents) {
-                    if ( line.contains("Date") )
-                        date = extract(line,foundStart);
-                    else if ( line.contains("White") ) {
-                        w = extract(line,foundStart);
-                    } else if ( line.contains("Black") ) {
-                        b = extract(line,foundStart);
-                    } else if ( line.contains("Result") ) {
-                        gameResult = extract(line,foundStart);
-                    } else if ( line.trim().equals("") )
-                        foundStart = true;
-                    else if ( foundStart ) {
-                        game = new Games( getCurrentGameId() + 1 , date , w , b , gameResult );
-                        //System.out.println(line);
-                        //Comments are inserted by either a ; (a comment that continues to the end of the line) or a { (which continues until a matching }). Comments do not nest.
-                        //I must remove comments before spiting. Also should remove numbers
-                        //also must remove result at the end
-                        line = line.replaceAll( "\\{.*}|;.*|\\d{0,9}\\.|1/2-1/2|1-0|0-1|\\*|\\+|!" , "" );
-                        String splitLine[] = line.split( " " );
+            for ( String line : fileContents ) {
+                if ( line.contains( "Date" ) ) {
+                    date = extract( line , foundStart );
+                    game.setGameDate( date );
+                } else if ( line.contains( "White" ) ) {
+                    w = extract( line , foundStart );
+                    game.setWhite( w );
+                } else if ( line.contains( "Black" ) ) {
+                    b = extract( line , foundStart );
+                    game.setBlack( b );
+                } else if ( line.contains( "Result" ) ) {
+                    gameResult = extract( line , foundStart );
+                    game.setResult( gameResult );
+                } else if ( line.trim().equals( "" ) ) {
+                    foundStart = true;
+                    GamesService.save( game , gameDatabase );
+                } else if ( foundStart ) {
 
-                        for ( String s : splitLine ) {
-                            if ( ! s.equals( " " ) && ! s.equals( "" ) ) {
-                                Moves move = new Moves( getMoveId() + 1 , getCurrentGameId() , s );
-                                MovesService.save( move , gameDatabase );
-                                updateTable();
-                            }
+                    //System.out.println(line);
+                    //Comments are inserted by either a ; (a comment that continues to the end of the line) or a { (which continues until a matching }). Comments do not nest.
+                    //I must remove comments before spiting. Also should remove numbers
+                    //also must remove result at the end
+                    line = line.replaceAll( "\\{.*}|;.*|\\d{0,9}\\.|1/2-1/2|1-0|0-1|\\*|\\+|!" , "" );
+                    String splitLine[] = line.split( " " );
 
+                    for ( String s : splitLine ) {
+                        if ( ! s.equals( " " ) && ! s.equals( "" ) ) {
+                            Moves move = new Moves( getMoveId() + 1 , getCurrentGameId() , s );
+                            MovesService.save( move , gameDatabase );
+                            updateTable();
                         }
-
                     }
-
                 }
-
-
+            }
         } else if ( local == 1 ) {
             game = databaseDialogue().get();
-            System.out.println( game.toString() );
+            game.setGameId( getCurrentGameId() + 1 ); //makes copy
+//            Games newGame = databaseDialogue().get();
+            List<Moves> selectAll = new ArrayList<>();
+//            MovesService.selectAll( selectAll , gameDatabase);
+//            game = new Games(0, newGame.getGameDate(), newGame.getWhite(),newGame.getBlack(),newGame.getResult());
+            GamesService.save( game , gameDatabase );
+            for ( Moves m : selectAll ) {
+                if ( m.getGameId() == game.getGameId() ) {
+                    updateTable( m.getMove() ); //saves move and displays in table
+                }
 
+            }
         }
-
     }
+
 
     private Optional<Games> databaseDialogue() {
 
@@ -260,10 +269,13 @@ public class DataController {
 
         Button delete = new Button( "Delete Game" );
         delete.setOnAction( e -> {
-            GamesService.deleteById( gamesTable.getSelectionModel().getSelectedItem().getId() , gameDatabase );
-            list.clear();
-            GamesService.selectForTable( list , gameDatabase );
-            gamesTable.setItems( FXCollections.observableList( list ) );
+            if ( gamesTable.getSelectionModel().getSelectedItem() != null ) {
+                MovesService.deleteByGameId( gamesTable.getSelectionModel().getSelectedItem().getId() , gameDatabase );
+                GamesService.deleteById( gamesTable.getSelectionModel().getSelectedItem().getId() , gameDatabase );
+                list.clear();
+                GamesService.selectForTable( list , gameDatabase );
+                gamesTable.setItems( FXCollections.observableList( list ) );
+            }
         } );
 
 
@@ -273,7 +285,8 @@ public class DataController {
         dialog.getDialogPane().getButtonTypes().add( ButtonType.APPLY );
 
         dialog.setResultConverter( dialogButton -> {
-            if ( dialogButton == ButtonType.APPLY ) {
+            if ( dialogButton == ButtonType.APPLY &&
+                    gamesTable.getSelectionModel().getSelectedItem() != null ) {
                 return new Games(
                         gamesTable.getSelectionModel().getSelectedItem().getId() ,
                         gamesTable.getSelectionModel().getSelectedItem().getDate() ,
@@ -281,8 +294,10 @@ public class DataController {
                         gamesTable.getSelectionModel().getSelectedItem().getBlack() ,
                         gamesTable.getSelectionModel().getSelectedItem().getResult() );
             }
-            return null;
+            return game; //reverts back to current game
         } );
+
+
         return dialog.showAndWait();
     }
 
@@ -425,10 +440,6 @@ public class DataController {
 
         dialog.getDialogPane().setContent( grid );
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern( "yyyy.MM.dd" );
-        LocalDate localDate = LocalDate.now();
-
-
         dialog.setResultConverter( (ButtonType button) -> {
             if ( button == ButtonType.OK ) {
                 return game;
@@ -465,7 +476,12 @@ public class DataController {
                 inputNameAndResult();
             }
         }
-        return msgResult.isPresent() && msgResult.get() != ButtonType.CLOSE;
+        if ( msgResult.isPresent() && msgResult.get() != ButtonType.CLOSE ) {
+            resetGame();
+            updateTable();
+            return true;
+        }
+        return false;
     }
 
     public void aboutMessage() {
