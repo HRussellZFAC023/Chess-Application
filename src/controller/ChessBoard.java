@@ -304,38 +304,41 @@ public class ChessBoard extends GridPane {
 
     @NotNull
     private String letter(final String moveString , final boolean ambiguityCheck , final boolean capture) {
+        String x = moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) );
+        String y = moveString.substring( moveString.length() - 2 );
+        String z = moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
+
         //returns letter + co-ordinates
         if ( ! moveString.substring( 0 , 1 ).equals( "P" ) && ! moveString.substring( 0 , 1 ).equals( "K" ) ) {
             if ( ambiguityCheck ) {
-                if ( ! capture ) return moveString.substring( 0 , 1 ) +
-                        moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
-                        moveString.substring( moveString.length() - 2 );
+                if ( ! capture ) return moveString.substring( 0 , 1 ) + x + y;
                 return moveString.substring( 0 , 1 ) +
-                        moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
+                        z;
             } else if ( ! capture )
-                return moveString.substring( 0 , 1 ) + "" + moveString.substring( moveString.length() - 2 );
+                return moveString.substring( 0 , 1 ) + "" + y;
             else return moveString.substring( 0 , 1 );
         } else if ( moveString.substring( 0 , 1 ).equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Kn" ) ) {
             if ( ambiguityCheck ) {
                 if ( ! capture )
-                    return "N" + moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
-                            moveString.substring( moveString.length() - 2 );
-                return "N" + moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
-            } else if ( ! capture ) return "N" + "" + moveString.substring( moveString.length() - 2 );
+                    return "N" + x + y;
+                return "N" + z;
+            } else if ( ! capture ) return "N" + "" + y;
             else return "N";
         } else if ( moveString.substring( 0 , 1 ).equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Ki" ) ) {
             if ( ambiguityCheck ) {
                 if ( ! capture )
-                    return "K" + moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) ) +
-                            moveString.substring( moveString.length() - 2 );
-                return "K" + moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
-            } else if ( ! capture ) return "K" + "" + moveString.substring( moveString.length() - 2 );
+                    return "K" + x + y;
+                return "K" + z;
+            } else if ( ! capture ) return "K" + "" + y;
             else return "K";
-        } else if ( ! capture ) return moveString.substring( moveString.length() - 2 );
+        } else if ( ! capture ) return y;
         else if ( ! ambiguityCheck ) {
-            return moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
-        } else return moveString.substring( moveString.length() - 2 );
+            return z;
+        } else {
+            return y;
+        }
     }
+    
 
 
     @NotNull
@@ -525,6 +528,14 @@ public class ChessBoard extends GridPane {
         MovesService.deleteByMoveId( controller.getMoveId() , controller.gameDatabase );
         controller.updateTable();
         //controller.allMoves.remove(controller.allMoves.size()-1);
+        for ( MoveView m : controller.allMoves ) {
+            makeMove( m.getWhite() , true );
+            if ( ! m.getBlack().equals( "" ) )
+                makeMove( m.getBlack() , false ); //because table stores "" for unmade black moves
+        }
+    }
+
+    public void load(){
         for ( MoveView m : controller.allMoves ) {
             makeMove( m.getWhite() , true );
             if ( ! m.getBlack().equals( "" ) )

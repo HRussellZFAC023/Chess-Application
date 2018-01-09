@@ -50,9 +50,9 @@ public class Main extends Application {
 
         VBox root = new VBox();
         Scene scene = new Scene(root,1024,768);       //creates scene
-        scene.getStylesheets().add("Assets/stylesheet.css");
+        scene.getStylesheets().add("assets/stylesheet.css");
         stage.setTitle("Chess Application");        //setting the title
-        stage.getIcons().add(new Image("Assets/chess-33-xxl.png"));    //adds icon
+        stage.getIcons().add(new Image("assets/chess-33-xxl.png"));    //adds icon
         stage.setScene(scene);
         stage.setMinWidth(750);
         stage.setMinHeight(550);
@@ -64,9 +64,10 @@ public class Main extends Application {
         Menu gameMenu = new Menu("Game");
         MenuItem newGameButton = new MenuItem("New game");
         MenuItem saveButton = new MenuItem( "Save As" );
-        MenuItem openButton = new MenuItem("Open"); //when this is pressed offer user to load a pgn or load from database
+        MenuItem importButton = new MenuItem("Import");
+        MenuItem openButton = new MenuItem("Open");
         MenuItem quitButton = new MenuItem("Quit");
-        gameMenu.getItems().addAll( newGameButton , saveButton , openButton , quitButton );
+        gameMenu.getItems().addAll( newGameButton , saveButton , openButton, importButton , quitButton );
 
         Menu tournamentMenu = new Menu("Tournaments");
         MenuItem tournamentItem1 = new MenuItem( "Generate Tournament" );
@@ -132,16 +133,28 @@ public class Main extends Application {
         newGameButton.setAccelerator( new KeyCodeCombination( KeyCode.N , KeyCombination.CONTROL_DOWN ) );
         saveButton.setOnAction( e -> controller.saveAsPGN() );
         saveButton.setAccelerator( new KeyCodeCombination( KeyCode.S , KeyCombination.CONTROL_DOWN ) );
-        openButton.setOnAction( e -> {
+        importButton.setOnAction( e -> {
             if ( controller.newGame() ) {//Resets Chessboard after asking if user would like to save
                 chessBoard.removeAllPieces();
                 chessBoard.defineStartPositions();
                 controller.resetGame();
-                controller.openSomething();
+                controller.openPgn();
                 controller.updateTable();
-            }
+                chessBoard.load();}
         } );
+        importButton.setAccelerator( new KeyCodeCombination( KeyCode.I , KeyCombination.CONTROL_DOWN ) );
+        openButton.setOnAction(e ->{
+        if ( controller.newGame() ) {//Resets Chessboard after asking if user would like to save
+            chessBoard.removeAllPieces();
+            chessBoard.defineStartPositions();
+            controller.resetGame();
+            controller.openFromDb();
+            controller.updateTable();
+            chessBoard.load();}
+        });
         openButton.setAccelerator( new KeyCodeCombination( KeyCode.O , KeyCombination.CONTROL_DOWN ) );
+
+
         quitButton.setOnAction( e -> controller.exitPrompt() );
         quitButton.setAccelerator( new KeyCodeCombination( KeyCode.Q , KeyCombination.CONTROL_DOWN ) );
         tournamentItem1.setOnAction( e -> controller.doSomething() );

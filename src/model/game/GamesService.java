@@ -35,7 +35,7 @@ public class GamesService {
     private static Games selectById(int id , DatabaseConnection database) {
         Games result = null;
 
-        PreparedStatement statement = database.newStatement( "SELECT * FROM Game WHERE game_ID = ?" );
+        PreparedStatement statement = database.newStatement( "SELECT * FROM game WHERE game_ID = ?" );
 
         try {
             if ( statement != null ) {
@@ -91,7 +91,7 @@ public class GamesService {
     }	// insert & update
 
     public static void deleteById(int id , DatabaseConnection database) {
-        PreparedStatement statement = database.newStatement( "DELETE FROM Game WHERE game_ID = ?" );
+        PreparedStatement statement = database.newStatement( "DELETE FROM game WHERE game_ID = ?" );
 
         try {
             statement.setInt( 1 , id );
@@ -103,7 +103,7 @@ public class GamesService {
     }
 
     public static void selectForTable(List<GameView> targetList , DatabaseConnection database) {
-        PreparedStatement statement = database.newStatement( "SELECT * From Game ORDER BY game_ID" );
+        PreparedStatement statement = database.newStatement( "SELECT * From game ORDER BY game_ID" );
 
         try {
             if ( statement != null ) {

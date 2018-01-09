@@ -44,8 +44,8 @@ public class DataController {
     public DataController(TableView<MoveView> tableView) {
 
         System.out.println("Initialising main controller...");
-        tournamentDatabase = new DatabaseConnection( "src\\Assets\\Tournament_Database.db" );
-        gameDatabase = new DatabaseConnection( "src\\Assets\\Moves_Database.db" );
+        tournamentDatabase = new DatabaseConnection( "src\\assets\\Tournament_Database.db" );
+        gameDatabase = new DatabaseConnection( "src\\assets\\Moves_Database.db" );
         this.tableView = tableView;
 
         resetGame();
@@ -132,36 +132,27 @@ public class DataController {
 
     }
 
-    public void openSomething() {
-
-        int local = 2;  //0 - not local event; 1- local event; 2 - event cancelled
+    public void openPgn() {
         String fileLocation;
         ArrayList<String> fileContents = new ArrayList<>();
 
-
-        Optional<ButtonType> msgResult = dialogueBox( "Would you like to copy a game from the database or a PGN file?" ,
-                "Database" , "PGN File" );
-
-        if ( msgResult.isPresent() && msgResult.get() == option1 && msgResult.get() != CLOSE ) local = 1;
-        else if ( msgResult.isPresent() && msgResult.get() != option1 && msgResult.get() != CLOSE ) local = 0;
-        System.out.println( msgResult );
-
-        if ( local == 0 ) {
             FileDialog dialog = new FileDialog( ( Frame ) null , "Select File to Open" );
             dialog.setMode( FileDialog.LOAD );
             dialog.setVisible( true );
+            String filePath = dialog.getDirectory();
             fileLocation = dialog.getFile();
-            System.out.println( fileLocation + " chosen." );
+            System.out.println( "[" + filePath + "] " + fileLocation + " chosen." );
 
             try {
-                try ( BufferedReader br = new BufferedReader( new FileReader( fileLocation ) ) ) {
+                try ( BufferedReader br = new BufferedReader( new FileReader( filePath + fileLocation ) ) ) {
                     String line = br.readLine();
                     while ( line != null ) {
                         fileContents.add( line );
                         line = br.readLine();
                     }
                 }
-            } catch ( IOException ignored ) {
+            } catch ( IOException e ) {
+                System.out.println("could not read file");
             }
 
             System.out.println( fileContents );
@@ -202,24 +193,26 @@ public class DataController {
                             Moves move = new Moves( getMoveId() + 1 , getCurrentGameId() , s );
                             MovesService.save( move , gameDatabase );
                             updateTable();
+                            System.out.println(s);
                         }
                     }
                 }
             }
-        } else if ( local == 1 ) {
-            game = databaseDialogue().get();
-            game.setGameId( getCurrentGameId() + 1 ); //makes copy
-//            Games newGame = databaseDialogue().get();
-            List<Moves> selectAll = new ArrayList<>();
-//            MovesService.selectAll( selectAll , gameDatabase);
-//            game = new Games(0, newGame.getGameDate(), newGame.getWhite(),newGame.getBlack(),newGame.getResult());
-            GamesService.save( game , gameDatabase );
-            for ( Moves m : selectAll ) {
-                if ( m.getGameId() == game.getGameId() ) {
-                    updateTable( m.getMove() ); //saves move and displays in table
-                }
+    }
 
+    public void openFromDb(){
+        game = databaseDialogue().get();
+        game.setGameId( getCurrentGameId() + 1 ); //makes copy
+        List<Moves> selectAll = new ArrayList<>();
+        MovesService.selectAll( selectAll , gameDatabase);
+        game = new Games(0, game.getGameDate(), game.getWhite(),game.getBlack(),game.getResult());
+        GamesService.save( game , gameDatabase );
+        for ( Moves m : selectAll ) {
+            if ( m.getGameId() == game.getGameId() ) {
+                updateTable( m.getMove() ); //saves move and displays in table
+                System.out.println(m.getMove());
             }
+
         }
     }
 
@@ -230,7 +223,7 @@ public class DataController {
         dialog.setTitle( "Select game" );
         dialog.setHeaderText( "Select game" );
         DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.getStylesheets().add( "Assets/stylesheet.css" );
+        dialogPane.getStylesheets().add("assets/stylesheet.css");
         dialogPane.setMinSize( 800 , 500 );
 
 
@@ -267,7 +260,7 @@ public class DataController {
         GamesService.selectForTable( list , gameDatabase );
         gamesTable.setItems( FXCollections.observableList( list ) );
 
-        Button delete = new Button( "Delete Game" );
+        Button delete = new Button( "Delete game" );
         delete.setOnAction( e -> {
             if ( gamesTable.getSelectionModel().getSelectedItem() != null ) {
                 MovesService.deleteByGameId( gamesTable.getSelectionModel().getSelectedItem().getId() , gameDatabase );
@@ -318,7 +311,7 @@ public class DataController {
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION,displayText,option1,option2,CLOSE);
         DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.getStylesheets().add( "Assets/stylesheet.css" );
+        dialogPane.getStylesheets().add("assets/stylesheet.css");
         Node closeButton = alert.getDialogPane().lookupButton(CLOSE);
         closeButton.managedProperty().bind(closeButton.visibleProperty());
         closeButton.setVisible(false);
@@ -330,13 +323,6 @@ public class DataController {
 
 
     public void exitPrompt () {
-        Optional<ButtonType> msgResult = dialogueBox(
-                "Are you sure you want to exit?" ,
-                "Yes","No"
-        );
-
-
-        if ( msgResult.isPresent() && msgResult.get() == option1 ) {
             Optional<ButtonType> msg2Result = dialogueBox(
                     "Save current game?" ,
                     "Yes" , "No"
@@ -353,7 +339,6 @@ public class DataController {
                 gameDatabase.disconnect();
                 System.exit( 0 );
             }
-        }
     }
 
     public void exitPrompt(WindowEvent event)  {
@@ -413,7 +398,7 @@ public class DataController {
         dialog.setTitle( "Results Dialog" );
         dialog.setHeaderText( "Enter match results:" );
         DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.getStylesheets().add( "Assets/stylesheet.css" );
+        dialogPane.getStylesheets().add("assets/stylesheet.css");
 
         // Set the button types.
         dialog.getDialogPane().getButtonTypes().addAll( ButtonType.OK , ButtonType.CANCEL );
@@ -492,7 +477,7 @@ public class DataController {
                 "\nExemplar 1 https://github.com/SteveBirtles/PizzaProject" +
                 "\nExemplar 2 https://github.com/Stevoisiak/JavaFX-Online-Chess" , ButtonType.CLOSE );
         DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.getStylesheets().add( "Assets/stylesheet.css" );
+        dialogPane.getStylesheets().add("assets/stylesheet.css");
         alert.show();
     }
 
