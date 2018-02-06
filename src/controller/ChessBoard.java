@@ -300,7 +300,7 @@ public class ChessBoard extends GridPane {
         }
         return false;
     }
-
+//test
 
     private String pgnLettering(final String moveString , final boolean ambiguityCheck , final boolean capture) {
 
