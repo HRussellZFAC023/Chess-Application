@@ -13,7 +13,6 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 import model.MoveView;
 import model.game.MovesService;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +34,8 @@ public class ChessBoard extends GridPane {
     public ChessBoard(boolean white , DataController controller) {
         boolean light;
         char ascii = 65;
-        whitesTurn = white;
-        this.controller = controller;
+        setWhitesTurn( white );
+        this.setController( controller );
 
         for ( int x = 1; x <= 8; x++ ) {
             for ( int y = 0; y < 8; y++ ) {
@@ -44,16 +43,16 @@ public class ChessBoard extends GridPane {
 
                 final int xVal = (x - 1);
 
-                space[xVal][y] = new Square( x , y );
+                getSpace()[xVal][y] = new Square( x , y );
                 if ( light )
-                    space[xVal][y].getStyleClass().add( "chess-space-light" );
+                    getSpace()[xVal][y].getStyleClass().add( "chess-space-light" );
                 else
-                    space[xVal][y].getStyleClass().add( "chess-space-dark" );
+                    getSpace()[xVal][y].getStyleClass().add( "chess-space-dark" );
 
                 if ( white ) {
-                    this.add( space[xVal][y] , x , 7 - y );
+                    this.add( getSpace()[xVal][y] , x , 7 - y );
                 } else {
-                    this.add( space[xVal][y] , x , y );
+                    this.add( getSpace()[xVal][y] , x , y );
                 }
                 setActionEvents( xVal , y );
             }
@@ -74,41 +73,41 @@ public class ChessBoard extends GridPane {
     }
 
     private void setActionEvents(int x , int y) {
-        space[x][y].setOnMousePressed( event -> onSpaceClick( x , y ) );
-        space[x][y].setOnMouseReleased( event -> disarmLegalMoves() );
+        getSpace()[x][y].setOnMousePressed( event -> onSpaceClick( x , y ) );
+        getSpace()[x][y].setOnMouseReleased( event -> disarmLegalMoves() );
 
-        space[x][y].setId( this.getClass().getSimpleName() + System.currentTimeMillis() );
-        space[x][y].setOnDragDetected( event -> {
-            Dragboard db = space[x][y].startDragAndDrop( TransferMode.MOVE );
+        getSpace()[x][y].setId( this.getClass().getSimpleName() + System.currentTimeMillis() );
+        getSpace()[x][y].setOnDragDetected( event -> {
+            Dragboard db = getSpace()[x][y].startDragAndDrop( TransferMode.MOVE );
             ClipboardContent content = new ClipboardContent();
             //visual
-            if ( space[x][y].getPiece() != null ) {
-                Image image = new Image( space[x][y].getPiece().getImgString() ,
-                        space[x][y].getWidth() , space[x][y].getHeight() ,
+            if ( getSpace()[x][y].getPiece() != null ) {
+                Image image = new Image( getSpace()[x][y].getPiece().getImgString() ,
+                        getSpace()[x][y].getWidth() , getSpace()[x][y].getHeight() ,
                         true , true );
                 db.setDragView( image , 50 , 50 );
             }
             // Store node ID in order to know what is dragged.
-            content.putString( space[x][y].getId() );
+            content.putString( getSpace()[x][y].getId() );
             db.setContent( content );
             event.consume();
         } );
 
-        space[x][y].setOnDragDropped( (DragEvent event) -> {
+        getSpace()[x][y].setOnDragDropped( (DragEvent event) -> {
             disarmLegalMoves();
             onSpaceClick( x , y );
             event.setDropCompleted( true );
             event.consume();
         } );
 
-        space[x][y].setOnDragOver( (DragEvent event) -> {
-            if ( legalMoves.contains( space[x][y] ) ) {
+        getSpace()[x][y].setOnDragOver( (DragEvent event) -> {
+            if ( getLegalMoves().contains( getSpace()[x][y] ) ) {
                 event.acceptTransferModes( TransferMode.MOVE );
             }
             event.consume();
         } );
 
-        space[x][y].setOnDragDone( (DragEvent event) -> {
+        getSpace()[x][y].setOnDragDone( (DragEvent event) -> {
             disarmLegalMoves();
             event.consume();
         } );
@@ -117,10 +116,10 @@ public class ChessBoard extends GridPane {
     }
 
     private void disarmLegalMoves() {
-        if ( lastClickedSquare != null ) {
-            lastClickedSquare.disarmButton();
+        if ( getLastClickedSquare() != null ) {
+            getLastClickedSquare().disarmButton();
         }
-        for ( Square legalMove : legalMoves ) {
+        for ( Square legalMove : getLegalMoves() ) {
             legalMove.disarmButton();
         }
 
@@ -129,30 +128,30 @@ public class ChessBoard extends GridPane {
 
     public void defineStartPositions() {
         //set new pieces
-        space[0][0].setPiece( new Rook( true ) );
-        space[1][0].setPiece( new Knight( true ) );
-        space[2][0].setPiece( new Bishop( true ) );
-        space[3][0].setPiece( new Queen( true ) );
-        space[4][0].setPiece( new King( true ) );
-        space[5][0].setPiece( new Bishop( true ) );
-        space[6][0].setPiece( new Knight( true ) );
-        space[7][0].setPiece( new Rook( true ) );
+        getSpace()[0][0].setPiece( new Rook( true ) );
+        getSpace()[1][0].setPiece( new Knight( true ) );
+        getSpace()[2][0].setPiece( new Bishop( true ) );
+        getSpace()[3][0].setPiece( new Queen( true ) );
+        getSpace()[4][0].setPiece( new King( true ) );
+        getSpace()[5][0].setPiece( new Bishop( true ) );
+        getSpace()[6][0].setPiece( new Knight( true ) );
+        getSpace()[7][0].setPiece( new Rook( true ) );
 
-        for ( int i = 0; i < space[0].length; i++ )
-            space[i][1].setPiece( new Pawn( true ) );
+        for ( int i = 0; i < getSpace()[0].length; i++ )
+            getSpace()[i][1].setPiece( new Pawn( true ) );
 
         // black pieces
-        space[0][7].setPiece( new Rook( false ) );
-        space[1][7].setPiece( new Knight( false ) );
-        space[2][7].setPiece( new Bishop( false ) );
-        space[3][7].setPiece( new Queen( false ) );
-        space[4][7].setPiece( new King( false ) );
-        space[5][7].setPiece( new Bishop( false ) );
-        space[6][7].setPiece( new Knight( false ) );
-        space[7][7].setPiece( new Rook( false ) );
+        getSpace()[0][7].setPiece( new Rook( false ) );
+        getSpace()[1][7].setPiece( new Knight( false ) );
+        getSpace()[2][7].setPiece( new Bishop( false ) );
+        getSpace()[3][7].setPiece( new Queen( false ) );
+        getSpace()[4][7].setPiece( new King( false ) );
+        getSpace()[5][7].setPiece( new Bishop( false ) );
+        getSpace()[6][7].setPiece( new Knight( false ) );
+        getSpace()[7][7].setPiece( new Rook( false ) );
 
-        for ( int i = 0; i < space[0].length; i++ )
-            space[i][6].setPiece( new Pawn( false ) );
+        for ( int i = 0; i < getSpace()[0].length; i++ )
+            getSpace()[i][6].setPiece( new Pawn( false ) );
 
     }
 
@@ -160,7 +159,7 @@ public class ChessBoard extends GridPane {
         //remove any old pieces
         for ( int i = 0; i < 8; i++ ) {
             for ( int j = 0; j < 8; j++ ) {
-                space[i][j].removePiece();
+                getSpace()[i][j].removePiece();
             }
         }
     }
@@ -176,86 +175,86 @@ public class ChessBoard extends GridPane {
         String captureMoveString = "";
 
 
-        if ( lastClickedSquare != null &&
-                lastClickedSquare.getPiece() != null &&
-                lastClickedSquare != space[X][Y] &&
-                legalMoves.contains( space[X][Y] ) ) {
+        if ( getLastClickedSquare() != null &&
+                getLastClickedSquare().getPiece() != null &&
+                getLastClickedSquare() != getSpace()[X][Y] &&
+                getLegalMoves().contains( getSpace()[X][Y] ) ) {
 
 
-            if ( space[X][Y].getPiece() == null &&  //if the space is empty
-                    legalMoves.contains( space[X][Y] ) || //AND legal move
-                    space[X][Y].getPiece().getColour() != lastClickedSquare.getPiece().getColour() &&//OR enemy piece
-                            legalMoves.contains( space[X][Y] ) ) {//AND legal move
+            if ( getSpace()[X][Y].getPiece() == null &&  //if the space is empty
+                    getLegalMoves().contains( getSpace()[X][Y] ) || //AND legal move
+                    getSpace()[X][Y].getPiece().getColour() != getLastClickedSquare().getPiece().getColour() &&//OR enemy piece
+                            getLegalMoves().contains( getSpace()[X][Y] ) ) {//AND legal move
 
-                if ( whitesTurn == lastClickedSquare.getPiece().getColour() ) {
+                if ( isWhitesTurn() == getLastClickedSquare().getPiece().getColour() ) {
 
-                    turnCounter++;//increment turn counter
-                    lastClickedSquare.getPiece().setMoveCounter(
-                            lastClickedSquare.getPiece().getMoveCounter() + 1 );//increment move counter
+                    setTurnCounter( getTurnCounter() + 1 );//increment turn counter
+                    getLastClickedSquare().getPiece().setMoveCounter(
+                            getLastClickedSquare().getPiece().getMoveCounter() + 1 );//increment move counter
 
-                    if ( space[X][Y].getPiece() != null ) {
+                    if ( getSpace()[X][Y].getPiece() != null ) {
                         capture = true;
                         captureMoveString =
-                                lastClickedSquare.getPiece().getPieceName() +
-                                        ( char ) (lastClickedSquare.getX() + 96) +
-                                        (lastClickedSquare.getY() + 1);
+                                getLastClickedSquare().getPiece().getPieceName() +
+                                        ( char ) (getLastClickedSquare().getX() + 96) +
+                                        (getLastClickedSquare().getY() + 1);
 
                     }
-                    if ( enpassant != null ) {
-                        enpassant.removePiece();
-                        enpassant = null;
+                    if ( getEnpassant() != null ) {
+                        getEnpassant().removePiece();
+                        setEnpassant( null );
                         capture = true;
                         captureMoveString =
-                                lastClickedSquare.getPiece().getPieceName() +
-                                        ( char ) (lastClickedSquare.getX() + 96) +
-                                        (lastClickedSquare.getY() + 1);
+                                getLastClickedSquare().getPiece().getPieceName() +
+                                        ( char ) (getLastClickedSquare().getX() + 96) +
+                                        (getLastClickedSquare().getY() + 1);
                     }
-                    space[X][Y].setPiece( lastClickedSquare.getPiece() );
+                    getSpace()[X][Y].setPiece( getLastClickedSquare().getPiece() );
 
 
-                    moveString = space[X][Y].getPiece().getPieceName()
-                            + " (" + ( char ) (lastClickedSquare.getX() + 96) + ") to "
-                            + ( char ) (X + 97) + "" + (Y + 1);
+                    setMoveString( getSpace()[X][Y].getPiece().getPieceName()
+                            + " (" + ( char ) (getLastClickedSquare().getX() + 96) + ") to "
+                            + ( char ) (X + 97) + "" + (Y + 1) );
 
-                    lastClickedSquare.removePiece();
+                    getLastClickedSquare().removePiece();
 
-                    if ( space[X][Y].getPiece().getPieceName().equals( "Pawn" ) && (
-                            (Y == 7 && space[X][Y].getPiece().getColour()) ||
-                                    (Y == 0 && ! space[X][Y].getPiece().getColour())) ) {
-                        space[X][Y].setPiece( choosePiece( space[X][Y].getPiece().getColour() ) );
+                    if ( getSpace()[X][Y].getPiece().getPieceName().equals( "Pawn" ) && (
+                            (Y == 7 && getSpace()[X][Y].getPiece().getColour()) ||
+                                    (Y == 0 && ! getSpace()[X][Y].getPiece().getColour())) ) {
+                        getSpace()[X][Y].setPiece( choosePiece( getSpace()[X][Y].getPiece().getColour() ) );
                     }
 
-                    if ( space[X][Y].getPiece().getPieceName().equals( "King" ) &&
-                            space[X][Y].getPiece().getMoveCounter() == 1 ) {
+                    if ( getSpace()[X][Y].getPiece().getPieceName().equals( "King" ) &&
+                            getSpace()[X][Y].getPiece().getMoveCounter() == 1 ) {
                         if ( X == 6 ) {
-                            space[X - 1][Y].setPiece( space[X + 1][Y].getPiece() );
-                            space[X + 1][Y].removePiece();
+                            getSpace()[X - 1][Y].setPiece( getSpace()[X + 1][Y].getPiece() );
+                            getSpace()[X + 1][Y].removePiece();
                             castledKingside = true;
                         }
                         if ( X == 2 ) {
-                            space[X + 1][Y].setPiece( space[X - 2][Y].getPiece() );
-                            space[X - 2][Y].removePiece();
+                            getSpace()[X + 1][Y].setPiece( getSpace()[X - 2][Y].getPiece() );
+                            getSpace()[X - 2][Y].removePiece();
                             castledQueensise = true;
                         }
                     }
 
 
-                    if ( turnCounter % 2 == 0 ) {
+                    if ( getTurnCounter() % 2 == 0 ) {
                         System.out.println( "whites turn" );
-                        whitesTurn = true;
+                        setWhitesTurn( true );
                     } else {
                         System.out.println( "blacks turn" );
-                        whitesTurn = false;
+                        setWhitesTurn( false );
                     }
-                    recordMove( capture , castledKingside , castledQueensise , moveString , captureMoveString ,
-                            space[X][Y] );
+                    recordMove( capture , castledKingside , castledQueensise , getMoveString() , captureMoveString ,
+                            getSpace()[X][Y] );
                 }
 
             }
         }
 
         showAvailableMoves( X , Y );// if the space contains a piece
-        lastClickedSquare = space[X][Y];//stores last piece click
+        setLastClickedSquare( getSpace()[X][Y] );//stores last piece click
 
 
     }
@@ -266,14 +265,14 @@ public class ChessBoard extends GridPane {
         String reformattedMove;
 
         if ( capture ) {
-            reformattedMove = letter( captureMoveString , ambiguityCheck( currentSquare , true ) , true ) + "x" +
-                    moveString.substring( moveString.length() - 2 ); //todo ambiguity check capture
+            reformattedMove = pgnLettering( captureMoveString , ambiguityCheck( currentSquare , true ) , true ) + "x" +
+                    moveString.substring( moveString.length() - 2 );  //todo ambiguity check capture
         } else if ( castledKingside ) {
             reformattedMove = "O-O";
         } else if ( castledQueenside ) {
             reformattedMove = "O-O-O";
-        } else reformattedMove = letter( moveString , ambiguityCheck( currentSquare , false ) , false );
-        controller.updateTable( reformattedMove );
+        } else reformattedMove = pgnLettering( moveString , ambiguityCheck( currentSquare , false ) , false );
+        getController().updateTable( reformattedMove );
     }
 
     private boolean ambiguityCheck(Square currentSquare , boolean capture) {
@@ -281,19 +280,19 @@ public class ChessBoard extends GridPane {
 
         for ( int x = 0; x < 8; x++ ) {
             for ( int y = 0; y < 8; y++ ) {
-                if ( space[x][y].getPiece() != null &&
-                        space[x][y].getPiece().getPieceName().equals( currentSquare.getPiece().getPieceName() ) &&
-                        space[x][y].getPiece().getColour() == currentSquare.getPiece().getColour() ) {
+                if ( getSpace()[x][y].getPiece() != null &&
+                        getSpace()[x][y].getPiece().getPieceName().equals( currentSquare.getPiece().getPieceName() ) &&
+                        getSpace()[x][y].getPiece().getColour() == currentSquare.getPiece().getColour() ) {
                     Piece piece = currentSquare.getPiece();
                     currentSquare
                             .removePiece(); //wont work because a piece is there !! therefore have to remove piece first
-                    if ( capture ) currentSquare.setPiece( new Pawn( whitesTurn ) );
+                    if ( capture ) currentSquare.setPiece( new Pawn( isWhitesTurn() ) );
                     showAvailableMoves( x , y );
                     currentSquare.removePiece();
                     currentSquare.setPiece( piece );
                     disarmLegalMoves();
-                    space[x][y].disarmButton();
-                    if ( legalMoves.contains( currentSquare ) ) {
+                    getSpace()[x][y].disarmButton();
+                    if ( getLegalMoves().contains( currentSquare ) ) {
                         return true;
                     }
                 }
@@ -302,46 +301,40 @@ public class ChessBoard extends GridPane {
         return false;
     }
 
-    @NotNull
-    private String letter(final String moveString , final boolean ambiguityCheck , final boolean capture) {
-        String x = moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) );
-        String y = moveString.substring( moveString.length() - 2 );
-        String z = moveString.substring( moveString.length() - 2 , moveString.length() - 1 );
 
-        //returns letter + co-ordinates
-        if ( ! moveString.substring( 0 , 1 ).equals( "P" ) && ! moveString.substring( 0 , 1 ).equals( "K" ) ) {
-            if ( ambiguityCheck ) {
-                if ( ! capture ) return moveString.substring( 0 , 1 ) + x + y;
-                return moveString.substring( 0 , 1 ) +
-                        z;
-            } else if ( ! capture )
-                return moveString.substring( 0 , 1 ) + "" + y;
-            else return moveString.substring( 0 , 1 );
-        } else if ( moveString.substring( 0 , 1 ).equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Kn" ) ) {
-            if ( ambiguityCheck ) {
-                if ( ! capture )
-                    return "N" + x + y;
-                return "N" + z;
-            } else if ( ! capture ) return "N" + "" + y;
-            else return "N";
-        } else if ( moveString.substring( 0 , 1 ).equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Ki" ) ) {
-            if ( ambiguityCheck ) {
-                if ( ! capture )
-                    return "K" + x + y;
-                return "K" + z;
-            } else if ( ! capture ) return "K" + "" + y;
-            else return "K";
-        } else if ( ! capture ) return y;
+    private String pgnLettering(final String moveString , final boolean ambiguityCheck , final boolean capture) {
+
+       final String xyCoordinates =  moveString.substring( moveString.length() - 2 );
+       String letterOfPiece = moveString.substring( 0 , 1 );
+       String ambiguityLetter = "";
+       if(!capture){/*else no parenthesis in string*/
+            ambiguityLetter = moveString.substring( moveString.indexOf( "(" ) + 1 , moveString.indexOf( ")" ) );
+       }
+
+        //returns pgnLettering co-ordinates
+        if ( ! letterOfPiece.equals( "P" ) && ! letterOfPiece.equals( "K" ) ) {
+            return getPgnMove(ambiguityCheck,capture, letterOfPiece,ambiguityLetter,xyCoordinates);
+        } else if ( letterOfPiece.equals( "K" ) && moveString.substring( 0 , 2 ).equals( "Kn" ) ) {
+           letterOfPiece = "N";
+            return getPgnMove(ambiguityCheck,capture, letterOfPiece,ambiguityLetter,xyCoordinates);
+        } else if ( letterOfPiece.equals( "K" ) && letterOfPiece.equals( "K" ) ) {
+            return getPgnMove(ambiguityCheck,capture, letterOfPiece,ambiguityLetter,xyCoordinates);
+        } else if ( ! capture ) return xyCoordinates; //pawn move
         else if ( ! ambiguityCheck ) {
-            return z;
-        } else {
-            return y;
-        }
+            return xyCoordinates;
+        } else return xyCoordinates;
     }
-    
+
+    private String getPgnMove(boolean ambiguityCheck, boolean capture, String letterOfPiece, String ambiguityLetter, String xyCoordinates){
+        if ( ambiguityCheck ) {
+            if ( ! capture ) return letterOfPiece + ambiguityLetter + xyCoordinates;
+            return letterOfPiece + xyCoordinates;
+        } else if ( ! capture ) return letterOfPiece + xyCoordinates;
+        else return letterOfPiece;
+
+    }
 
 
-    @NotNull
     private Piece choosePiece(final boolean colour) {
         ButtonType option1 = new ButtonType( "♕" , ButtonBar.ButtonData.OTHER );
         ButtonType option2 = new ButtonType( "♖" , ButtonBar.ButtonData.OTHER );
@@ -358,8 +351,8 @@ public class ChessBoard extends GridPane {
 
 
     private void showAvailableMoves(final int X , final int Y) {
-        legalMoves.clear();
-        space[X][Y].armButton();
+        getLegalMoves().clear();
+        getSpace()[X][Y].armButton();
 
         int ai = 0;
         int xVal;
@@ -368,109 +361,109 @@ public class ChessBoard extends GridPane {
         boolean enpassantRight = false;
 
 
-        if ( space[X][Y].getPiece() != null ) {
-            MoveList[] moves = space[X][Y].getPiece().getPieceMoves();
+        if ( getSpace()[X][Y].getPiece() != null ) {
+            MoveList[] moves = getSpace()[X][Y].getPiece().getPieceMoves();
 
-            if ( space[X][Y].getPiece().getPieceName().equals( "King" ) &&
-                    space[X][Y].getPiece().getMoveCounter() == 0 ) {
+            if ( getSpace()[X][Y].getPiece().getPieceName().equals( "King" ) &&
+                    getSpace()[X][Y].getPiece().getMoveCounter() == 0 ) {
                 //Queen-side castling
-                if ( moveString != null && (
-                        space[0][0].getPiece() != null &&
-                        space[0][0].getPiece().getMoveCounter() == 0 ||
-                                space[0][7].getPiece().getMoveCounter() == 0) ) {
-                    if ( space[X][Y].getPiece().getColour() &&
-                            space[1][0].getPiece() == null &&
-                            space[2][0].getPiece() == null &&
-                            space[3][0].getPiece() == null ) {
-                        legalMoves.add( space[2][0] );
-                        space[2][0].armButton();
-                    } else if ( ! space[X][Y].getPiece().getColour() &&
-                            space[1][7].getPiece() == null &&
-                            space[2][7].getPiece() == null &&
-                            space[3][7].getPiece() == null ) {
-                        legalMoves.add( space[2][7] );
-                        space[2][7].armButton();
+                if ( getMoveString() != null && (
+                        getSpace()[0][0].getPiece() != null &&
+                        getSpace()[0][0].getPiece().getMoveCounter() == 0 ||
+                                getSpace()[0][7].getPiece().getMoveCounter() == 0) ) {
+                    if ( getSpace()[X][Y].getPiece().getColour() &&
+                            getSpace()[1][0].getPiece() == null &&
+                            getSpace()[2][0].getPiece() == null &&
+                            getSpace()[3][0].getPiece() == null ) {
+                        getLegalMoves().add( getSpace()[2][0] );
+                        getSpace()[2][0].armButton();
+                    } else if ( ! getSpace()[X][Y].getPiece().getColour() &&
+                            getSpace()[1][7].getPiece() == null &&
+                            getSpace()[2][7].getPiece() == null &&
+                            getSpace()[3][7].getPiece() == null ) {
+                        getLegalMoves().add( getSpace()[2][7] );
+                        getSpace()[2][7].armButton();
                     }
                 }
 
                 //king-side castling
-                if ( moveString != null && (
-                        space[7][0].getPiece() != null &&
-                                space[7][7] != null &&
-                        space[7][0].getPiece().getMoveCounter() == 0 ||
-                                space[7][7].getPiece().getMoveCounter() == 0) ) {
-                    if ( space[X][Y].getPiece().getColour() &&
-                            space[5][0].getPiece() == null &&
-                            space[6][0].getPiece() == null ) {
-                        legalMoves.add( space[6][0] );
-                        space[6][0].armButton();
-                    } else if ( ! space[X][Y].getPiece().getColour() &&
-                            space[5][7].getPiece() == null &&
-                            space[6][7].getPiece() == null ) {
-                        legalMoves.add( space[6][7] );
-                        space[6][7].armButton();
+                if ( getMoveString() != null && (
+                        getSpace()[7][0].getPiece() != null &&
+                                getSpace()[7][7] != null &&
+                        getSpace()[7][0].getPiece().getMoveCounter() == 0 ||
+                                getSpace()[7][7].getPiece().getMoveCounter() == 0) ) {
+                    if ( getSpace()[X][Y].getPiece().getColour() &&
+                            getSpace()[5][0].getPiece() == null &&
+                            getSpace()[6][0].getPiece() == null ) {
+                        getLegalMoves().add( getSpace()[6][0] );
+                        getSpace()[6][0].armButton();
+                    } else if ( ! getSpace()[X][Y].getPiece().getColour() &&
+                            getSpace()[5][7].getPiece() == null &&
+                            getSpace()[6][7].getPiece() == null ) {
+                        getLegalMoves().add( getSpace()[6][7] );
+                        getSpace()[6][7].armButton();
                     }
                 }
 
             }
 
-            if ( moveString != null && Y == 4 && space[X][Y].getPiece().getColour() && moveString.contains( "Pawn" ) ||
-                    moveString != null && Y == 3 && ! space[X][Y].getPiece().getColour() &&
-                            moveString.contains( "Pawn" ) ) {
+            if ( getMoveString() != null && Y == 4 && getSpace()[X][Y].getPiece().getColour() && getMoveString().contains( "Pawn" ) ||
+                    getMoveString() != null && Y == 3 && ! getSpace()[X][Y].getPiece().getColour() &&
+                            getMoveString().contains( "Pawn" ) ) {
                 if ( indexExists( (X - 1) , (Y) ) &&
-                        space[X - 1][Y].getPiece() != null &&
-                        space[X - 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
-                        space[X - 1][Y].getPiece().getMoveCounter() == 1 &&
-                        moveString.contains( Character.toString( ( char ) (X - 1 + 97) ) ) ) {
-                    if ( space[X][Y].getPiece().getColour() ) enpassantLeft = true;
+                        getSpace()[X - 1][Y].getPiece() != null &&
+                        getSpace()[X - 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
+                        getSpace()[X - 1][Y].getPiece().getMoveCounter() == 1 &&
+                        getMoveString().contains( Character.toString( ( char ) (X - 1 + 97) ) ) ) {
+                    if ( getSpace()[X][Y].getPiece().getColour() ) enpassantLeft = true;
                     else enpassantRight = true;
-                    enpassant = space[X - 1][Y];
+                    setEnpassant( getSpace()[X - 1][Y] );
 
                 }
                 if ( indexExists( (X + 1) , (Y) ) &&
-                        space[X + 1][Y].getPiece() != null &&
-                        space[X + 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
-                        space[X + 1][Y].getPiece().getMoveCounter() == 1 &&
-                        moveString.contains( Character.toString( ( char ) (X + 1 + 97) ) ) ) {
-                    if ( space[X][Y].getPiece().getColour() ) enpassantRight = true;
+                        getSpace()[X + 1][Y].getPiece() != null &&
+                        getSpace()[X + 1][Y].getPiece().getPieceName().equals( "Pawn" ) &&
+                        getSpace()[X + 1][Y].getPiece().getMoveCounter() == 1 &&
+                        getMoveString().contains( Character.toString( ( char ) (X + 1 + 97) ) ) ) {
+                    if ( getSpace()[X][Y].getPiece().getColour() ) enpassantRight = true;
                     else enpassantLeft = true;
-                    enpassant = space[X + 1][Y];
+                    setEnpassant( getSpace()[X + 1][Y] );
                 }
 
             }
 
             for ( MoveList m : moves ) {
-                for ( int i = 1; i <= space[X][Y].getPiece().getRange(); i++ ) {
+                for ( int i = 1; i <= getSpace()[X][Y].getPiece().getRange(); i++ ) {
 
 
                     xVal = X + m.getX() * i;
                     yVal = Y + m.getY() * i;
 
-                    if ( space[X][Y].getPiece().getPieceName().equals( "Pawn" ) ) {
-                        if ( ! space[X][Y].getPiece().getColour() ) {
+                    if ( getSpace()[X][Y].getPiece().getPieceName().equals( "Pawn" ) ) {
+                        if ( ! getSpace()[X][Y].getPiece().getColour() ) {
                             xVal = X + (- m.getX()) * i;
                             yVal = Y + (- m.getY()) * i;
                         }
-                        if ( space[X][Y].getPiece().getMoveCounter() != 0 ) {
+                        if ( getSpace()[X][Y].getPiece().getMoveCounter() != 0 ) {
                             //allow jump two space only first move
                             if ( m == MoveList.DOUBLE_UP ) {
                                 break;
                             }
                         }
 
-                        if ( indexExists( (X + 1) , (Y + 1) ) && space[X + 1][Y + 1].getPiece() == null &&
-                                space[X][Y].getPiece().getColour() ||
-                                indexExists( (X - 1) , (Y - 1) ) && space[X - 1][Y - 1].getPiece() == null &&
-                                        ! space[X][Y].getPiece().getColour() ) {
+                        if ( indexExists( (X + 1) , (Y + 1) ) && getSpace()[X + 1][Y + 1].getPiece() == null &&
+                                getSpace()[X][Y].getPiece().getColour() ||
+                                indexExists( (X - 1) , (Y - 1) ) && getSpace()[X - 1][Y - 1].getPiece() == null &&
+                                        ! getSpace()[X][Y].getPiece().getColour() ) {
                             //allow diagonal capture
                             if ( m == MoveList.UP_RIGHT && ! enpassantRight ) {
                                 break;
                             }
                         }
-                        if ( indexExists( (X - 1) , (Y + 1) ) && space[X - 1][Y + 1].getPiece() == null &&
-                                space[X][Y].getPiece().getColour() ||
-                                indexExists( (X + 1) , (Y - 1) ) && space[X + 1][Y - 1].getPiece() == null &&
-                                        ! space[X][Y].getPiece().getColour() ) {
+                        if ( indexExists( (X - 1) , (Y + 1) ) && getSpace()[X - 1][Y + 1].getPiece() == null &&
+                                getSpace()[X][Y].getPiece().getColour() ||
+                                indexExists( (X + 1) , (Y - 1) ) && getSpace()[X + 1][Y - 1].getPiece() == null &&
+                                        ! getSpace()[X][Y].getPiece().getColour() ) {
                             //allow diagonal capture
                             if ( m == MoveList.UP_LEFT && ! enpassantLeft ) {
                                 break;
@@ -480,20 +473,20 @@ public class ChessBoard extends GridPane {
 
                     }
 
-                    if ( yVal >= 0 && yVal < 8 && xVal >= 0 && xVal < 8 )//if square exists on board
+                    if (indexExists( xVal, yVal ) )//if square exists on board
                     {
 
-                        if ( space[xVal][yVal].getPiece() == null ||
-                                space[xVal][yVal].getPiece().getColour() != space[X][Y].getPiece().getColour() &&
-                                        ! space[xVal][yVal].getPiece().getPieceName()
+                        if ( getSpace()[xVal][yVal].getPiece() == null ||
+                                getSpace()[xVal][yVal].getPiece().getColour() != getSpace()[X][Y].getPiece().getColour() &&
+                                        ! getSpace()[xVal][yVal].getPiece().getPieceName()
                                                 .equals( "King" ) ) { //stops enemy taking king
-                            if ( space[X][Y].getPiece().getPieceName().equals( "Pawn" ) &&
+                            if ( getSpace()[X][Y].getPiece().getPieceName().equals( "Pawn" ) &&
                                     (m == MoveList.UP || m == MoveList.DOUBLE_UP) &&
-                                    space[xVal][yVal].getPiece() != null ) break;
-                            legalMoves.add( ai , space[xVal][yVal] );
-                            legalMoves.get( ai ).armButton();
+                                    getSpace()[xVal][yVal].getPiece() != null ) break;
+                            getLegalMoves().add( ai , getSpace()[xVal][yVal] );
+                            getLegalMoves().get( ai ).armButton();
                             ai++;
-                            if ( space[xVal][yVal].getPiece() != null ) break; //stops collision after one capture
+                            if ( getSpace()[xVal][yVal].getPiece() != null ) break; //stops collision after one capture
                         } else {
                             //stops checking this move if pieces are the same color
                             break;
@@ -518,17 +511,17 @@ public class ChessBoard extends GridPane {
     }
 
     public void undo() {
-        this.moveString = null;
-        if ( turnCounter > 0 ) {
-            turnCounter--;
-            whitesTurn = (! whitesTurn);
+        this.setMoveString( null );
+        if ( getTurnCounter() > 0 ) {
+            setTurnCounter( getTurnCounter() - 1 );
+            setWhitesTurn( (! isWhitesTurn()) );
         }
         removeAllPieces();
         defineStartPositions();
-        MovesService.deleteByMoveId( controller.getMoveId() , controller.gameDatabase );
-        controller.updateTable();
+        MovesService.deleteByMoveId( getController().getMoveId() , getController().getGameDatabase() );
+        getController().updateTable();
         //controller.allMoves.remove(controller.allMoves.size()-1);
-        for ( MoveView m : controller.allMoves ) {
+        for ( MoveView m : getController().getAllMoves() ) {
             makeMove( m.getWhite() , true );
             if ( ! m.getBlack().equals( "" ) )
                 makeMove( m.getBlack() , false ); //because table stores "" for unmade black moves
@@ -536,7 +529,7 @@ public class ChessBoard extends GridPane {
     }
 
     public void load(){
-        for ( MoveView m : controller.allMoves ) {
+        for ( MoveView m : getController().getAllMoves() ) {
             makeMove( m.getWhite() , true );
             if ( ! m.getBlack().equals( "" ) )
                 makeMove( m.getBlack() , false ); //because table stores "" for unmade black moves
@@ -549,27 +542,27 @@ public class ChessBoard extends GridPane {
             case "O-O": {
                 int i = 7;
                 if ( colour ) i = 0;
-                space[6][i].setPiece( space[4][i].getPiece() );
-                space[5][i].setPiece( space[7][i].getPiece() );
-                space[7][i].removePiece();
-                space[4][i].removePiece();
+                getSpace()[6][i].setPiece( getSpace()[4][i].getPiece() );
+                getSpace()[5][i].setPiece( getSpace()[7][i].getPiece() );
+                getSpace()[7][i].removePiece();
+                getSpace()[4][i].removePiece();
 
                 break;
             }
             case "O-O-O": {
                 int i = 7;
                 if ( colour ) i = 0;
-                space[2][i].setPiece( space[4][i].getPiece() );
-                space[3][i].setPiece( space[0][i].getPiece() );
-                space[0][i].removePiece();
-                space[4][i].removePiece();
+                getSpace()[2][i].setPiece( getSpace()[4][i].getPiece() );
+                getSpace()[3][i].setPiece( getSpace()[0][i].getPiece() );
+                getSpace()[0][i].removePiece();
+                getSpace()[4][i].removePiece();
                 break;
             }
             default:
 
                 Piece piece;
                 moveString = moveString.replace( "+" , "" );
-                Square destination = space[moveString.charAt( moveString.length() - 2 ) - 97]
+                Square destination = getSpace()[moveString.charAt( moveString.length() - 2 ) - 97]
                         [Character.getNumericValue( moveString.charAt( moveString.length() - 1 ) ) - 1];
 
                 switch (moveString.charAt( 0 )) {
@@ -612,18 +605,18 @@ public class ChessBoard extends GridPane {
 
     private void moveLoop(int x , Square destination , Piece piece) {
         for ( int y = 0; y < 8; y++ ) {
-            if ( space[x][y].getPiece() != null &&
-                    space[x][y].getPiece().getPieceName().equals( piece.getPieceName() ) &&
-                    space[x][y].getPiece().getColour() == piece.getColour() ) {
+            if ( getSpace()[x][y].getPiece() != null &&
+                    getSpace()[x][y].getPiece().getPieceName().equals( piece.getPieceName() ) &&
+                    getSpace()[x][y].getPiece().getColour() == piece.getColour() ) {
                 showAvailableMoves( x , y );
                 disarmLegalMoves();
-                space[x][y].disarmButton();
+                getSpace()[x][y].disarmButton();
 
-                if ( legalMoves.contains( destination ) ) {
-                    space[x][y].getPiece().setMoveCounter(
-                            space[x][y].getPiece().getMoveCounter() + 1 ); //increment move counter of piece
-                    destination.setPiece( space[x][y].getPiece() );
-                    space[x][y].removePiece();
+                if ( getLegalMoves().contains( destination ) ) {
+                    getSpace()[x][y].getPiece().setMoveCounter(
+                            getSpace()[x][y].getPiece().getMoveCounter() + 1 ); //increment move counter of piece
+                    destination.setPiece( getSpace()[x][y].getPiece() );
+                    getSpace()[x][y].removePiece();
                 }
 
 
@@ -631,5 +624,64 @@ public class ChessBoard extends GridPane {
         }
     }
 
+    public DataController getController() {
+        return controller;
+    }
+
+    public void setController(DataController controller) {
+        this.controller = controller;
+    }
+
+    private Square[][] getSpace() {
+        return space;
+    }
+
+    private List<Square> getLegalMoves() {
+        return legalMoves;
+    }
+
+    public void setLegalMoves(List<Square> legalMoves) {
+        this.legalMoves = legalMoves;
+    }
+
+    private Square getLastClickedSquare() {
+        return lastClickedSquare;
+    }
+
+    private void setLastClickedSquare(Square lastClickedSquare) {
+        this.lastClickedSquare = lastClickedSquare;
+    }
+
+    private Square getEnpassant() {
+        return enpassant;
+    }
+
+    private void setEnpassant(Square enpassant) {
+        this.enpassant = enpassant;
+    }
+
+    private int getTurnCounter() {
+        return turnCounter;
+    }
+
+    private void setTurnCounter(int turnCounter) {
+        this.turnCounter = turnCounter;
+    }
+
+    private boolean isWhitesTurn() {
+        return whitesTurn;
+    }
+
+    private void setWhitesTurn(boolean whitesTurn) {
+        this.whitesTurn = whitesTurn;
+    }
+
+    private String getMoveString() {
+        return moveString;
+    }
+
+    private void setMoveString(String moveString) {
+        this.moveString = moveString;
+    }
 }
 

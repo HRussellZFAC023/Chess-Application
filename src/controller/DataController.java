@@ -482,4 +482,11 @@ public class DataController {
     }
 
 
+    public DatabaseConnection getGameDatabase() {
+        return gameDatabase;
+    }
+
+    public List<MoveView> getAllMoves() {
+        return allMoves;
+    }
 }
