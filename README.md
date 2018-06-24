@@ -7,5 +7,5 @@ To run this project
 Open Intelli-j idea, press checkout from Version Control and copy the Url:
 https://github.com/HRussell63250/Coursework/new/master?readme=1
 
-![](https://imgur.com/ax2Uc3D)
+![Image of the application](https://i.imgur.com/ax2Uc3D.png)
 
